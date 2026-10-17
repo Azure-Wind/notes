@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>讲座资料库 · 使用说明</title>
+<style>
+  :root{--ink:#141a22;--ink-2:#3d4753;--faint:#7b838d;--line:#dfe4ea;--line-2:#c8d0d9;
+        --bg:#eef0f3;--paper:#fff;--navy:#1f4e79;--navy-pale:#eef3f9;
+        --warn:#b4531a;--warn-soft:#fdf3e7;--ok:#1f7a5a;--ok-soft:#eaf6f1;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+       font-size:15px;line-height:1.72;}
+  .page{max-width:940px;margin:0 auto;padding:0 20px 72px;}
+  header.top{background:var(--paper);border:1px solid var(--line);border-radius:12px;
+             padding:26px 30px;margin:26px 0 18px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
+  h1{font-size:25px;margin:0 0 8px;letter-spacing:-.01em;}
+  .sub{color:var(--faint);font-size:13.5px;margin:0;}
+  section{background:var(--paper);border:1px solid var(--line);border-radius:12px;
+          padding:22px 30px 26px;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
+  h2{font-size:17.5px;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line);
+     display:flex;align-items:baseline;gap:9px;}
+  h2 .n{font-size:12px;font-weight:700;color:var(--navy);background:var(--navy-pale);
+        border-radius:5px;padding:2px 7px;flex:none;}
+  h3{font-size:14.8px;margin:20px 0 8px;}
+  p{margin:9px 0;}
+  ul,ol{padding-left:22px;margin:9px 0;} li{margin:6px 0;}
+  code{font-family:"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;font-size:.87em;
+       background:#f2f4f7;border:1px solid var(--line);border-radius:4px;padding:1px 5px;}
+  pre{background:#f7f8fa;border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+      overflow-x:auto;font-size:12.8px;line-height:1.65;margin:12px 0;}
+  pre code{background:none;border:none;padding:0;font-size:inherit;}
+  table{width:100%;border-collapse:collapse;font-size:13.8px;margin:12px 0;}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top;}
+  thead th{background:#f7f8fa;font-size:11.9px;color:var(--faint);letter-spacing:.05em;
+           text-transform:uppercase;border-bottom:1px solid var(--line-2);}
+  tbody tr:last-child td{border-bottom:none;}
+  td:first-child{white-space:nowrap;}
+  .tip{background:var(--navy-pale);border-left:3px solid var(--navy);border-radius:0 6px 6px 0;
+       padding:12px 16px;margin:12px 0;font-size:14px;}
+  .tip b{color:var(--navy);}
+  .warn{background:var(--warn-soft);border-left:3px solid var(--warn);border-radius:0 6px 6px 0;
+        padding:12px 16px;margin:12px 0;font-size:14px;}
+  .warn b{color:var(--warn);}
+  .ok{background:var(--ok-soft);border-left:3px solid var(--ok);border-radius:0 6px 6px 0;
+      padding:12px 16px;margin:12px 0;font-size:14px;}
+  .ok b{color:var(--ok);}
+  .badge{display:inline-block;font-size:11.5px;border-radius:4px;padding:1px 7px;
+         border:1px solid var(--line-2);color:var(--ink-2);background:#fafbfc;white-space:nowrap;}
+  .b-main{color:var(--navy);background:var(--navy-pale);border-color:#c9dcee;font-weight:600;}
+  .b-img{color:var(--ok);background:var(--ok-soft);border-color:#cbe7db;}
+  .muted{color:var(--faint);font-size:13px;}
+  footer{text-align:center;color:var(--faint);font-size:12.5px;padding:22px 0 0;line-height:1.9;}
+  @media print{
+    @page{size:A4;margin:14mm 13mm;}
+    body{background:#fff;font-size:10.2pt;line-height:1.5;}
+    .page{max-width:none;padding:0;}
+    header.top,section{border:none;border-radius:0;box-shadow:none;padding:0;margin:0 0 8mm;}
+    header.top{border-bottom:2px solid #000;padding-bottom:3mm;margin-bottom:6mm;}
+    h1{font-size:17pt;} h2{font-size:12.5pt;break-after:avoid;} h3{break-after:avoid;}
+    table{font-size:8.8pt;} pre{font-size:8.4pt;background:#fafafa;}
+    h2 .n{background:#eee;color:#000;}
+    tr,li,.tip,.warn,.ok{break-inside:avoid;}
+    a{color:#000;text-decoration:none;}
+  }
+  @media (max-width:720px){
+    section{padding:18px 16px 22px;}
+    header.top{padding:20px 18px;}
+    h1{font-size:21px;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <h1>讲座资料库 · 使用说明</h1>
+  <p class="sub">根目录 <code>大学\lectures</code>　·　每场讲座一个文件夹　·　更新于 2026-10-17</p>
+</header>
+
+<section>
+  <h2><span class="n">01</span>三句话</h2>
+  <ul>
+    <li>每场讲座一个文件夹，文件夹里<b>有一份自包含的「正式版笔记」</b>，其余都是它的附属品。</li>
+    <li>还没有正式版时，从 <code>_模板\</code> 拿骨架；讲座结束后合并成正式版，并把旧的过程稿清掉。</li>
+    <li><b><code>index.html</code> 是脚本生成的产物</b>，不要手改；资料变动后重跑一次 <code>生成索引.py</code>。</li>
+  </ul>
+  <div class="tip"><b>只想看内容：</b>打开 <code>index.html</code> → 点「正式版」那一行。要点图片版发到手机或打印，点「图片版（25 张）」。</div>
+</section>
+
+<section>
+  <h2><span class="n">02</span>目录结构</h2>
+<pre><code>大学\lectures\
+├─ index.html                              ← 总索引（脚本生成，勿手改）
+├─ README.html                             ← 本说明
+├─ AI-Agents-From-Chat-to-Action\
+│   ├─ AI-Agents-From-Chat-to-Action.html   ← 正式版笔记：单文件、自包含，可直接转发
+│   ├─ 图片版\01.png … 25.png               ← 同一版式的 A4 图片版（1240×1754）
+│   └─ 附件\logits_toy_model.py             ← 笔记里引用的可运行脚本
+├─ _模板\                                  ← 讲座当场 / 讲座后的空白骨架
+│   ├─ 01_讲座笔记.html
+│   └─ 02_讲后总结.html
+└─ _脚本\                                  ← 维护脚本
+    ├─ 生成索引.py                          ← 唯一实现
+    └─ 生成索引.ps1                         ← 包装器，只负责调用 .py</code></pre>
+  <p class="muted">以 <code>_</code> 开头的目录（<code>_模板</code>、<code>_脚本</code>）不参与索引扫描。</p>
+</section>
+
+<section>
+  <h2><span class="n">03</span>每份文件是什么</h2>
+  <table>
+    <thead><tr><th>文件</th><th>角色</th><th>能不能单独转发</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="badge b-main">正式版</span> <code>AI-Agents-From-Chat-to-Action.html</code></td>
+        <td><b>唯一阅读稿</b>。146 KB 单文件，样式、表格、示例代码全部内联；15 节，含自测、术语、待核对清单与「logits 手算全流程」。</td>
+        <td>可以，发出去就能看</td>
+      </tr>
+      <tr>
+        <td><span class="badge b-img">图片版</span> <code>图片版\01–25.png</code></td>
+        <td>正式版的 A4 打印版式，1240×1754（A4 @150 dpi），按编号顺序阅读。</td>
+        <td>可以，适合手机查看 / 打印</td>
+      </tr>
+      <tr>
+        <td><span class="badge">附件</span> <code>附件\logits_toy_model.py</code></td>
+        <td>笔记里「logits 怎么算出来」的配套脚本：纯标准库，运行即打印每一层的数值。</td>
+        <td>可以，但需要 Python</td>
+      </tr>
+      <tr>
+        <td><span class="badge">模板</span> <code>_模板\01_讲座笔记.html</code><br><code>_模板\02_讲后总结.html</code></td>
+        <td>讲座当场记录、讲座后复盘的空白骨架；最终以正式版为准，过程稿可删。</td>
+        <td>不必转发</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">04</span>命名约定</h2>
+  <table>
+    <thead><tr><th>对象</th><th>规则</th><th>示例</th></tr></thead>
+    <tbody>
+      <tr><td>讲座文件夹</td><td>讲座<b>英文标题</b>，空格用连字符，去掉冒号等非法字符</td><td><code>AI-Agents-From-Chat-to-Action</code></td></tr>
+      <tr><td>正式版笔记</td><td><b>与文件夹同名</b>的 <code>.html</code>，单文件自包含</td><td><code>AI-Agents-From-Chat-to-Action.html</code></td></tr>
+      <tr><td>图片版</td><td>子目录 <code>图片版\</code>，两位编号从 <code>01</code> 起</td><td><code>图片版\01.png … 25.png</code></td></tr>
+      <tr><td>附件</td><td>子目录 <code>附件\</code>，保留原始文件名</td><td><code>附件\logits_toy_model.py</code></td></tr>
+      <tr><td>过程稿</td><td>若保留，用 <code>NN_用途</code> 前缀；正式版定稿后建议删除</td><td><code>01_讲座笔记</code> → <code>02_讲后总结</code></td></tr>
+    </tbody>
+  </table>
+  <div class="warn">
+    <b>一处历史偏差：</b>旧版本说明里写的是固定名 <code>01_讲座笔记_正式版.html</code>，实际采用的是「与文件夹同名」。<b>两种命名索引脚本都能识别</b>（含「正式版 / 笔记」字样即视为正式版；否则把该文件夹里最大的 HTML 视为正式版），所以不必为了统一而改名。
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">05</span>日期从哪来</h2>
+  <p>文件夹名只放英文标题，<b>日期写进正文页 <code>&lt;head&gt;</code> 的元数据注释</b>，由索引脚本读取显示，因此改名不会丢日期：</p>
+<pre><code>&lt;!-- lecture-date: 2026-10-16 | lecture-title: AI智能体：从对话到行动 | lecture-title-en: AI Agents: From Chat to Action --&gt;</code></pre>
+  <p>同一份 <code>&lt;head&gt;</code> 里的 <code>&lt;title&gt;</code> 会被索引当作<b>友好名称</b>，<code>&lt;meta name="description"&gt;</code> 被当作<b>摘要</b>显示。想让索引里那一条好看，就把这两项写好。</p>
+</section>
+
+<section>
+  <h2><span class="n">06</span>排版与公式约定</h2>
+  <ul>
+    <li><b>全文正体</b>：公式里的变量、函数名、上下标<b>一律不用斜体</b>。</li>
+    <li><b>真下标 / 真上标 / 真分式</b>：用 <code>&lt;sub&gt;</code>、<code>&lt;sup&gt;</code>；分式用 <code>.frac</code> 容器（分子 <code>.num</code>、分母 <code>.den</code>，靠 <code>border-top</code> 画分数线），不要用 <code>x/y</code> 斜杠冒充分式。</li>
+    <li><b>三个现成的类</b>：<code>.formula</code>（公式区，带标签列）、<code>.math</code>（行内数学字体）、<code>.frac</code>（分式）。纯 HTML + 内联 CSS 实现，<b>不依赖外部字体或 MathJax</b>，离线可看、可打印。</li>
+    <li><b>代码与数值账本保持等宽</b>：矩阵、逐项实算、脚本输出这类内容不要做成排版公式——它要能逐字对齐、逐行核对。</li>
+    <li>中文正文：无衬线字体栈、行高约 1.7；数学符号可用衬线栈（<code>Cambria Math → Georgia → Times</code>），但同样正体。</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">07</span>索引与脚本</h2>
+  <p><code>_脚本\生成索引.py</code> 做四件事：</p>
+  <ol>
+    <li>扫描根目录下所有<b>不以 <code>_</code> 开头</b>的文件夹，一个文件夹算一场讲座；</li>
+    <li>读 <code>&lt;head&gt;</code> 里的元数据注释得到日期与标题，并按角色给文件分类（正式版 / 讲义 / 预习 / 提问卡 / 总结 / 图片版 / 附件 / 资料）；</li>
+    <li><b>把同一目录下的多张图片折叠成一条</b>记录，显示「图片版（25 张）」，链接指向第 1 张；</li>
+    <li>用 <code>&lt;title&gt;</code> 当名称、<code>meta description</code> 当摘要，按日期倒序输出 <code>index.html</code>（同时是打印友好的 A4 版式）。</li>
+  </ol>
+  <p>两种跑法（等价，<code>.ps1</code> 只是包装器）：</p>
+<pre><code>python "大学\lectures\_脚本\生成索引.py"
+powershell -File "大学\lectures\_脚本\生成索引.ps1"</code></pre>
+  <div class="warn"><b>不要手改 <code>index.html</code>：</b>下次生成会被整份覆盖。要改样式或排序，改 <code>生成索引.py</code> 里的 <code>CSS</code> 与 <code>KIND_ORDER</code>。</div>
+</section>
+
+<section>
+  <h2><span class="n">08</span>新讲座怎么加</h2>
+  <ol>
+    <li>建文件夹，名用<b>讲座英文标题</b>（连字符代替空格）。</li>
+    <li>从 <code>_模板\</code> 复制 <code>01_讲座笔记.html</code> / <code>02_讲后总结.html</code> 到新文件夹，作为当场记录与复盘骨架。</li>
+    <li>在页头写入 <code>&lt;!-- lecture-date: … | lecture-title: … --&gt;</code>，并写好 <code>&lt;title&gt;</code> 与 <code>meta description</code>。</li>
+    <li>讲座结束后合并成<b>正式版</b>（与文件夹同名），需要时导出 <code>图片版\01–NN.png</code>，把可用脚本放进 <code>附件\</code>，删掉过程稿。</li>
+    <li>重跑 <code>生成索引.py</code> 刷新 <code>index.html</code>。</li>
+  </ol>
+  <div class="ok"><b>对助手可以直接说：</b>「为 X 月 X 日的某某讲座建资料夹」「把这份笔记合并成正式版并导出图片版」「刷新索引」。</div>
+</section>
+
+<section>
+  <h2><span class="n">09</span>格式与交付约定</h2>
+  <ul>
+    <li>所有资料以 <b>HTML</b> 交付：单文件、内联样式、<b>不依赖任何外部资源</b>，离线可看，<code>Ctrl+P</code> 可直接打印成 A4 PDF。</li>
+    <li>不产出 Markdown 文件；确需其他格式（LaTeX、代码文件等）时按需生成。</li>
+    <li>正式版是<b>唯一阅读稿</b>：样式、图表、示例代码全部内联；单独转发，或删掉同目录其他文件，都不影响阅读。</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">10</span>变更记录</h2>
+  <table>
+    <thead><tr><th>日期</th><th>变动</th></tr></thead>
+    <tbody>
+      <tr><td>2026-10-17</td><td>讲座结束，资料合并为<b>正式版笔记</b>（15 节）并导出 <b>图片版 25 张</b>；<code>生成索引.py</code> 重写（图片版折叠、友好名称与摘要、文件大小、角色标签、按日期倒序）；<code>生成索引.ps1</code> 改为包装器；本说明重写。</td></tr>
+      <tr><td>2026-10-16</td><td>建立讲座文件夹与模板；此前的《预习清单》《A1/A1b 讲义》《追问问题卡》等过程稿已被正式版取代（个人 agent 与提问卡部分<b>未并入</b>正式版，如需可重做）。</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  讲座资料库说明 · 与本目录的 <code>index.html</code> 配套使用<br>
+  「打印 → 另存为 PDF」可得到 A4 版说明
+</footer>
+
+</div>
+</body>
+</html>
