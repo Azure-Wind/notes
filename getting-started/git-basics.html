@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Git 入门笔记：三棵树模型、分支合并、冲突解决、远程推送与 GitHub Pages 实操，附真实踩坑清单与命令速查。">
+<title>Git 入门笔记 · 笔记库</title>
+<style>
+  :root{
+    --ink:#141a22;--ink-2:#3d4753;--muted:#69737f;--faint:#8d96a1;
+    --line:#dfe4ea;--line-2:#c8d0d9;--bg:#eef0f3;--paper:#fff;
+    --navy:#1f4e79;--navy-pale:#eef3f9;
+    --teal:#176f68;--teal-pale:#eaf4f2;
+    --amber:#9a5b18;--amber-pale:#fbf2e6;
+    --red:#9b2c2c;--red-pale:#fbeeed;
+    --green:#2c6e49;--green-pale:#eef6f1;
+    --mono:"Cascadia Mono","JetBrains Mono",Consolas,"Courier New",monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:18px}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+       font-size:15px;line-height:1.75;}
+  .page{max-width:900px;margin:0 auto;padding:0 20px 80px;}
+
+  .crumbs{font-size:13px;color:var(--faint);margin:22px 0 10px;}
+  .crumbs a{color:var(--navy);text-decoration:none;}
+  .crumbs a:hover{text-decoration:underline;}
+
+  header.top{background:var(--paper);border:1px solid var(--line);border-radius:12px;
+             padding:28px 32px;margin:0 0 18px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+          color:var(--navy);background:var(--navy-pale);border-radius:5px;padding:2px 8px;display:inline-block;}
+  h1{font-size:27px;margin:12px 0 8px;letter-spacing:-.01em;}
+  h1 .en{color:var(--faint);font-size:15px;font-weight:400;margin-left:8px;}
+  .sub{color:var(--faint);font-size:13.5px;margin:0;}
+
+  nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:12px;
+          padding:18px 24px 20px;margin-bottom:20px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
+  nav.toc h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+             margin:0 0 12px;font-weight:600;}
+  nav.toc ol{margin:0;padding-left:0;list-style:none;counter-reset:toc;
+             display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 26px;font-size:14px;}
+  @media (max-width:640px){nav.toc ol{grid-template-columns:1fr}}
+  nav.toc li{counter-increment:toc;}
+  nav.toc li a{color:var(--ink-2);text-decoration:none;display:block;padding:3px 0;}
+  nav.toc li a::before{content:counter(toc,decimal-leading-zero) "  ";color:var(--faint);
+                       font-family:var(--mono);font-size:12px;}
+  nav.toc li a:hover{color:var(--navy);text-decoration:underline;}
+
+  section{background:var(--paper);border:1px solid var(--line);border-radius:12px;
+          padding:24px 30px 26px;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
+  h2.sec{font-size:20px;margin:0 0 6px;padding-bottom:12px;border-bottom:1px solid var(--line);
+         letter-spacing:-.01em;}
+  h2.sec .num{color:var(--faint);font-family:var(--mono);font-size:14px;margin-right:10px;font-weight:400;}
+  h3{font-size:16px;margin:24px 0 8px;color:var(--navy);}
+  h3:first-of-type{margin-top:18px}
+  h4{font-size:14.5px;margin:18px 0 6px;color:var(--ink-2);}
+  p{margin:8px 0;color:var(--ink-2);}
+  ul,ol{margin:8px 0;padding-left:22px;color:var(--ink-2);}
+  li{margin:4px 0;}
+  li>strong,p>strong{color:var(--ink);}
+  a{color:var(--navy);}
+
+  code{font-family:var(--mono);font-size:12.6px;background:#f2f4f7;border:1px solid #e6eaef;
+       border-radius:4px;padding:1px 5px;color:#2c3e50;word-break:break-word;}
+  pre{background:#f8f9fb;border:1px solid var(--line);border-left:3px solid var(--line-2);
+      border-radius:8px;padding:14px 16px;overflow-x:auto;margin:12px 0;
+      font-family:var(--mono);font-size:12.7px;line-height:1.62;color:#26303b;}
+  pre code{background:none;border:none;padding:0;font-size:inherit;color:inherit;}
+  pre.ok{border-left-color:var(--green);background:#f6fbf8;}
+  pre.bad{border-left-color:var(--red);background:#fdf8f7;}
+
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.6px;}
+  th,td{text-align:left;vertical-align:top;padding:9px 11px;border-bottom:1px solid var(--line);}
+  thead th{background:#f7f8fa;font-size:11.8px;letter-spacing:.05em;color:var(--muted);
+           text-transform:uppercase;border-bottom:1px solid var(--line-2);font-weight:600;}
+  tbody tr:last-child td{border-bottom:none;}
+  td code{font-size:12.2px;}
+
+  .callout{border-radius:8px;padding:13px 17px;margin:14px 0;font-size:14px;border:1px solid;}
+  .callout .t{font-weight:600;display:block;margin-bottom:4px;}
+  .callout p{margin:4px 0;color:inherit;font-size:13.8px;}
+  .callout code{background:rgba(255,255,255,.65);border-color:rgba(0,0,0,.08);}
+  .warn{background:var(--amber-pale);border-color:#ecd9bd;color:#6b3f10;}
+  .warn .t{color:var(--amber);}
+  .danger{background:var(--red-pale);border-color:#f0cecb;color:#7a2222;}
+  .danger .t{color:var(--red);}
+  .tip{background:var(--teal-pale);border-color:#cfe6e2;color:#14544f;}
+  .tip .t{color:var(--teal);}
+  .ok{background:var(--green-pale);border-color:#d3e7db;color:#245640;}
+  .ok .t{color:var(--green);}
+  .note{background:var(--navy-pale);border-color:#d7e3f0;color:#1c4366;}
+  .note .t{color:var(--navy);}
+
+  .flow{background:#f8f9fb;border:1px dashed var(--line-2);border-radius:8px;
+        padding:14px 16px;margin:12px 0;font-family:var(--mono);font-size:12.6px;
+        line-height:1.7;white-space:pre;overflow-x:auto;color:#26303b;}
+
+  footer{margin-top:26px;color:var(--faint);font-size:12.5px;line-height:1.9;text-align:center;}
+  footer a{color:var(--navy);text-decoration:none;}
+
+  @media print{
+    @page{margin:15mm}
+    body{background:#fff;font-size:10.5pt;line-height:1.65}
+    .page{max-width:none;padding:0}
+    .crumbs,nav.toc,footer{display:none}
+    section,header.top{border:none;box-shadow:none;padding:0 0 8px;margin-bottom:14px;break-inside:auto}
+    h2.sec{break-after:avoid;border-bottom:1px solid #ccc}
+    h3{break-after:avoid}
+    pre,table,.callout,.flow{break-inside:avoid}
+    a{color:#000;text-decoration:none}
+    pre{background:#f7f7f7;border:1px solid #ddd;font-size:8.6pt}
+    code{background:#f2f2f2;border:none;font-size:9pt}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="crumbs"><a href="../">笔记库</a> › <a href="./">入门指南</a> › Git 入门</div>
+
+  <header class="top">
+    <span class="kicker">Getting Started</span>
+    <h1>Git 入门笔记<span class="en">从三棵树到 GitHub Pages</span></h1>
+    <p class="sub">整理自一次完整的实操：配置 → 本地提交 → 分支合并 → 解冲突 → 推送 → 部署静态站点。附真实踩坑与命令速查。</p>
+  </header>
+
+  <nav class="toc">
+    <h2>目录</h2>
+    <ol>
+      <li><a href="#model">心智模型：三棵树</a></li>
+      <li><a href="#setup">安装与配置</a></li>
+      <li><a href="#daily">日常最小闭环</a></li>
+      <li><a href="#history">查看历史与差异</a></li>
+      <li><a href="#undo">回退与撤销</a></li>
+      <li><a href="#ignore">忽略文件</a></li>
+      <li><a href="#branch">分支</a></li>
+      <li><a href="#merge">合并与冲突</a></li>
+      <li><a href="#remote">远程仓库</a></li>
+      <li><a href="#gh">GitHub 进阶：gh / Pages / Releases</a></li>
+      <li><a href="#pitfalls">踩坑清单</a></li>
+      <li><a href="#cheatsheet">命令速查表</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============================================================ -->
+  <section id="model">
+    <h2 class="sec"><span class="num">01</span>心智模型：三棵树</h2>
+
+    <p><strong>先建立模型，后面所有命令都能自己推导出来。</strong>如果不理解三棵树，就只能死记命令，遇到报错完全无法判断。</p>
+
+    <h3>1.1 三个位置</h3>
+<pre>项目目录/                       ← 工作区 (working tree)
+├── README.md                      你平时编辑的文件，操作系统直接可见
+├── main.py
+└── .git/                       ← 版本库 (repository)   Git 的全部家当
+    ├── index                   ← 暂存区 (staging area)  单个文件，不是文件夹
+    ├── HEAD                    ← 指针：我现在在哪个分支
+    ├── objects/                ← 对象数据库：所有版本的内容，按哈希存放
+    └── refs/heads/             ← 分支名 → 提交哈希 的映射
+        └── main</pre>
+
+    <div class="warn callout">
+      <span class="t">常见误解：暂存区是 <code>.git</code> 文件夹</span>
+      <p>不少教程（包括某些纸质手册）会这么写，但<strong>不准确</strong>。暂存区的实体是 <code>.git/index</code> 这一个文件；<code>.git</code> 是版本库本体，<code>.git/objects</code> 只是其中的对象库。</p>
+    </div>
+
+    <h3>1.2 文件的一生：四种状态</h3>
+    <table>
+      <thead><tr><th>状态</th><th>含义</th><th>怎么进入</th><th><code>git status</code> 显示在哪</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Untracked</strong></td><td>文件存在，但 Git 还没开始管它</td><td>新建文件</td><td><code>Untracked files</code></td></tr>
+        <tr><td><strong>Modified</strong></td><td>已跟踪的文件被改了，改动还在工作区</td><td>编辑已提交过的文件</td><td><code>Changes not staged for commit</code></td></tr>
+        <tr><td><strong>Staged</strong></td><td>改动已放到暂存区，下次提交会包含它</td><td><code>git add</code></td><td><code>Changes to be committed</code></td></tr>
+        <tr><td><strong>Committed</strong></td><td>已经写进版本库，成为历史的一部分</td><td><code>git commit</code></td><td>不再出现（三者一致）</td></tr>
+      </tbody>
+    </table>
+
+    <div class="flow">Untracked  ──git add──→  Staged  ──git commit──→  Committed
+                                                              │
+                                            （此后修改它就是）  ↓
+                                                        Modified</div>
+
+    <p><strong>为什么新文件需要手动 <code>add</code>？</strong> 因为 Git 只跟踪你亲手交上去的东西。如果 <code>init</code> 就自动纳入所有文件，凡是在大目录里误 <code>init</code>，几万个文件（包括几个 GB 的镜像、密钥文件）会瞬间被跟踪。</p>
+
+    <h3>1.3 <code>add</code> 是"复制"，不是"搬"</h3>
+    <p><code>git add</code> 之后文件<strong>仍在工作区</strong>，只是暂存区里多了一份它的内容快照。这个区别很重要：</p>
+    <ul>
+      <li>因为是复制，所以 <strong>add 之后还能继续改文件</strong>，暂存区里保存的是 add 那一刻的内容</li>
+      <li>此时 <code>git status</code> 会让同一个文件同时出现在 <code>Changes to be committed</code>（旧快照）和 <code>Changes not staged</code>（新改动）两个区块里——不是 bug，是"复制"模型的必然结果</li>
+    </ul>
+
+    <h3>1.4 提交是快照，不是补丁</h3>
+    <p>每个提交保存的是<strong>当时整个项目的样子</strong>，不是"相对上一次改了什么"。差异是显示时现算的。</p>
+    <table>
+      <thead><tr><th>提交</th><th>那一刻仓库里有</th></tr></thead>
+      <tbody>
+        <tr><td><code>C1</code> 添加 README</td><td><code>README.md</code></td></tr>
+        <tr><td><code>C2</code> 添加统计函数</td><td><code>README.md</code> + <code>stats.py</code></td></tr>
+        <tr><td><code>C3</code> 添加 utils</td><td>上面两个 + <code>utils.py</code></td></tr>
+      </tbody>
+    </table>
+    <p>所以"C2 里没有 utils.py"是准确的说法——那时候它确实还不存在。<code>git checkout C2</code> 时 <code>utils.py</code> 会消失，正是因为它是"重构工作区去匹配 C2 的快照"。</p>
+
+    <h3>1.5 指针链：HEAD → 分支 → 提交</h3>
+<pre>HEAD ──→ main ──→ C3 ──→ C2 ──→ C1 ──→ (无)</pre>
+    <ul>
+      <li><strong>HEAD</strong> 回答"我现在在哪"。它通常指向<strong>分支名</strong>，不直接指提交</li>
+      <li><strong>分支名</strong>（<code>main</code>）指向某个提交的哈希</li>
+      <li><strong>提交</strong>里存着"我的父提交是谁"的指针，于是链条一路回溯到根提交</li>
+    </ul>
+    <p>可以直接读出这些指针——Git 没有任何数据库，全是一行行文本：</p>
+<pre>$ cat .git/HEAD
+ref: refs/heads/main
+
+$ cat .git/refs/heads/main
+d9ff79d94cddbfa9f3e175317adbd69c53f68a10</pre>
+
+    <div class="tip callout">
+      <span class="t">为什么 HEAD 要间接指分支？</span>
+      <p>因为这样<strong>新提交时只需要移动分支指针</strong>，HEAD 始终钉在分支名上不动。切换分支时也只需改 HEAD 这一个小指针，所有提交一个不动——这就是"分支在 Git 里极其轻量"的根本原因。</p>
+    </div>
+
+    <p>提交之后指针怎么动：</p>
+<pre>提交前:  HEAD ──→ main ──→ C2 ──→ C1
+提交后:  HEAD ──→ main ──→ C3 ──→ C2 ──→ C1
+                     ↑
+              main 前移一格，HEAD 不动</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="setup">
+    <h2 class="sec"><span class="num">02</span>安装与配置</h2>
+
+    <h3>2.1 安装</h3>
+    <table>
+      <thead><tr><th>平台</th><th>方式</th></tr></thead>
+      <tbody>
+        <tr><td>Windows</td><td><code>winget install Microsoft.Git</code>；或官网安装包；MSYS2 用户可直接装 <code>mingw-w64-ucrt-x86_64-git</code></td></tr>
+        <tr><td>Ubuntu / Debian</td><td><code>sudo apt install git</code></td></tr>
+        <tr><td>macOS</td><td><code>brew install git</code></td></tr>
+      </tbody>
+    </table>
+    <p>装完验证：<code>git --version</code>。Windows 安装时<strong>务必勾选"添加到 PATH"</strong>，否则命令行里调不到 <code>git</code>。</p>
+
+    <div class="warn callout">
+      <span class="t">Windows 上 winget 调不到时</span>
+      <p>常见原因是用户 PATH 里挂的是别人的 <code>WindowsApps</code> 目录（例如 <code>C:\Users\Administrator\AppData\Local\Microsoft\WindowsApps</code>），而真正的 winget 在 <code>C:\Users\&lt;你&gt;\AppData\Local\Microsoft\WindowsApps</code>。把 PATH 里那一条换成自己的即可。改完<strong>必须新开终端</strong>才生效。</p>
+    </div>
+
+    <h3>2.2 身份配置（提交必须有）</h3>
+<pre>git config --global user.name  "Your Name"
+git config --global user.email "you@example.com"
+git config --global init.defaultBranch main      # 新仓库默认分支用 main 而非 master
+git config --global --list                       # 查看全局配置</pre>
+    <ul>
+      <li><code>--global</code> 写进 <code>~/.gitconfig</code>，对该用户所有仓库生效</li>
+      <li>想给某个仓库单独设置：<strong>在该仓库目录下执行同样的命令但不写 <code>--global</code></strong></li>
+      <li>邮箱会<strong>公开出现在每次提交记录里</strong>。不想暴露真实邮箱，可用 GitHub 提供的 <code>xxxx@users.noreply.github.com</code></li>
+    </ul>
+
+    <h3>2.3 编辑器：<code>git commit --amend</code> / <code>merge</code> 时会弹出</h3>
+    <table>
+      <thead><tr><th>编辑器</th><th>保存并退出</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>nano（底部有 <code>^G ^X</code> 提示）</td><td><code>Ctrl+O</code> → <code>Enter</code> → <code>Ctrl+X</code></td><td>最省事，什么都不用改</td></tr>
+        <tr><td>vim</td><td><code>Esc</code> → 输入 <code>:wq</code> → <code>Enter</code></td><td>左下角无菜单栏</td></tr>
+      </tbody>
+    </table>
+    <p>换掉默认编辑器：</p>
+<pre>git config --global core.editor "code --wait"    # 用 VS Code</pre>
+    <div class="danger callout">
+      <span class="t"><code>--wait</code> 不能省</span>
+      <p>没有 <code>--wait</code>，VS Code 会立刻返回，Git 以为你编辑完了，于是用空信息提交。这是很常见的坑。</p>
+    </div>
+
+    <h3>2.4 中文文件名显示成 <code>\345\233\276...</code></h3>
+<pre>git config --global core.quotepath false</pre>
+    <p>只影响<strong>显示</strong>，不影响数据。默认值是 <code>true</code>，会把非 ASCII 字符转义。</p>
+
+    <h3>2.5 SSH 密钥（推送到 GitHub 免密）</h3>
+<pre># 1. 先建目录（ssh-keygen 不会自动创建父目录）
+mkdir ~/.ssh
+
+# 2. 生成 ed25519 密钥对
+ssh-keygen -t ed25519 -C "you@example.com" -f ~/.ssh/id_ed25519
+
+# 3. 收紧权限（Windows）
+icacls "$env:USERPROFILE\.ssh" /inheritance:r /grant:r "$($env:USERNAME):(OI)(CI)(F)"
+
+# 4. 启动 ssh-agent（Windows 需管理员）
+Set-Service ssh-agent -StartupType Automatic
+Start-Service ssh-agent
+
+# 5. 把私钥加载进 agent（没设口令短语则不会提示）
+ssh-add ~/.ssh/id_ed25519
+ssh-add -l
+
+# 6. 复制公钥，粘到 GitHub → Settings → SSH and GPG keys
+Get-Content ~/.ssh/id_ed25519.pub | Set-Clipboard
+
+# 7. 测试
+ssh -T git@github.com</pre>
+
+    <p>公钥文件有三个字段，末尾那个只是<strong>备注标签</strong>，不参与认证：</p>
+<pre>ssh-ed25519  AAAAC3NzaC1lZDI1NTE5AAAAI...(base64)...  you@example.com
+└── 算法 ──┘  └────── 真正的密钥本体 ──────┘  └─ comment ─┘</pre>
+    <p>想改或删掉备注（例如不想公开邮箱）：</p>
+<pre>ssh-keygen -c -C "" -f ~/.ssh/id_ed25519      # 清空备注
+ssh-keygen -c -C "win-home" -f ~/.ssh/id_ed25519</pre>
+
+    <div class="warn callout">
+      <span class="t">22 端口被网络屏蔽时</span>
+      <p>表现为 <code>ssh -T</code> 卡住几十秒后超时。改走 443：先验证 <code>ssh -T -p 443 git@ssh.github.com</code>，通了再写进 <code>~/.ssh/config</code>：</p>
+<pre>Host github.com
+  HostName ssh.github.com
+  Port 443
+  User git
+  IdentityFile ~/.ssh/id_ed25519</pre>
+    </div>
+
+    <div class="tip callout">
+      <span class="t">口令短语的作用</span>
+      <p>私钥落盘后若无口令短语，文件就是"明文可用的钥匙"。设了口令短语 + <code>ssh-agent</code> 缓存，日常只需输一次。不确定自己设没设：<code>ssh-add</code> 时若没提示输入，说明是空口令，可用 <code>ssh-keygen -p -f &lt;私钥&gt;</code> 补上。</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="daily">
+    <h2 class="sec"><span class="num">03</span>日常最小闭环</h2>
+
+<pre>git init                      # 在当前目录建仓库（只创建 .git/，不产生提交）
+git status                    # 最重要的习惯：动手前先看状态
+git add README.md             # 把文件放进暂存区
+git status                    # 观察文件从 Untracked 移到 Changes to be committed
+git commit -m "docs: 添加 README"
+git log --oneline</pre>
+
+    <table>
+      <thead><tr><th>命令</th><th>真正做了什么</th></tr></thead>
+      <tbody>
+        <tr><td><code>git init</code></td><td>只创建 <code>.git/</code> 目录。<strong>不改你的文件、不创建提交</strong></td></tr>
+        <tr><td><code>git add &lt;文件&gt;</code></td><td>把工作区内容<strong>复制</strong>进暂存区</td></tr>
+        <tr><td><code>git add .</code></td><td>把当前目录下所有改动（新增+修改+删除）都放进暂存区</td></tr>
+        <tr><td><code>git commit -m "..."</code></td><td>把暂存区打包成一个提交，写进版本库</td></tr>
+      </tbody>
+    </table>
+
+    <div class="tip callout">
+      <span class="t">撤销 <code>git init</code></span>
+      <p>它的唯一产物是 <code>.git/</code>，所以直接删掉就还原了：<code>rm -rf .git</code>。练习仓库可以随便玩；<strong>真实项目慎用</strong>——这会抹掉全部提交历史。</p>
+    </div>
+
+    <h3>3.1 提交信息的写法</h3>
+    <p>推荐 <strong>Conventional Commits</strong> 约定，一眼看出这次改动的性质：</p>
+    <table>
+      <thead><tr><th>前缀</th><th>用于</th></tr></thead>
+      <tbody>
+        <tr><td><code>feat:</code></td><td>新功能</td></tr>
+        <tr><td><code>fix:</code></td><td>修 bug</td></tr>
+        <tr><td><code>docs:</code></td><td>文档</td></tr>
+        <tr><td><code>refactor:</code></td><td>重构（不改行为）</td></tr>
+        <tr><td><code>test:</code></td><td>测试</td></tr>
+        <tr><td><code>chore:</code></td><td>杂务（构建脚本、依赖、清理）</td></tr>
+      </tbody>
+    </table>
+    <p>提交信息用双引号包起来。PowerShell 里若含 <code>$</code>，改用单引号避免变量展开：<code>git commit -m 'fix: 修复 $HOME 的问题'</code>。</p>
+
+    <h3>3.2 <code>git add</code> 只能收编已存在的文件</h3>
+<pre class="bad">$ git add test.py
+fatal: pathspec 'test.py' did not match any files</pre>
+    <p>这是"文件不存在"，跟分支毫无关系。顺序必须是<strong>先创建文件，再 add</strong>：</p>
+<pre class="ok">"print('hello')" | Set-Content test.py
+git add test.py
+git status</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="history">
+    <h2 class="sec"><span class="num">04</span>查看历史与差异</h2>
+
+    <h3>4.1 <code>git log</code> 家族</h3>
+<pre>git log                              # 完整：哈希、作者、日期、信息
+git log --oneline                    # 紧凑：短哈希 + 信息
+git log --oneline --decorate         # 带分支/标签名字（装饰）
+git log --oneline --graph            # 用 ASCII 画分叉/汇合
+git log --oneline --decorate --graph --all   # 最常用的一条
+git log -p                           # 每次提交的完整 diff
+git log --stat                       # 每次提交改了哪些文件</pre>
+
+    <div class="warn callout">
+      <span class="t"><code>git log</code> 是"新在上、旧在下"</span>
+      <p>输出按提交时间<strong>倒序</strong>排列。所以第一行是最新提交，最后一行是根提交。<strong>位置高低 ≠ 祖先关系</strong>——同一行里上下相邻的才是父子关系；不同分支的节点按时间穿插，可能出现"较新的提交反而排在下面某个节点之上/之下"的情况。</p>
+    </div>
+
+    <p>想看某个提交的父节点（判断是不是合并提交最快的方法）：</p>
+<pre>git log --all --graph --format="%h parents=[%p] refs=[%d] %s"</pre>
+<pre>普通提交:  parents=[d9ff79d]                 ← 一个父
+合并提交:  parents=[15a91d5 c140c3f]         ← 两个父</pre>
+
+    <h3>4.2 装饰（decoration）到底是什么</h3>
+    <p>装饰 = <strong>所有指向这个提交的引用名</strong>。<code>--decorate</code> 有三种档位：</p>
+    <table>
+      <thead><tr><th>写法</th><th>效果</th></tr></thead>
+      <tbody>
+        <tr><td><code>--decorate=short</code></td><td><code>(HEAD -&gt; main)</code>、<code>(feature)</code>，省略 <code>refs/heads/</code> 前缀；<strong><code>--decorate</code> 等价于此</strong></td></tr>
+        <tr><td><code>--decorate=full</code></td><td><code>(HEAD -&gt; refs/heads/main)</code>，显示完整引用路径</td></tr>
+        <tr><td><code>--decorate=auto</code></td><td><strong>输出到终端才显示</strong>；被管道/重定向时不显示。<strong>未配置 <code>log.decorate</code> 时的默认值</strong></td></tr>
+        <tr><td><code>--no-decorate</code></td><td>强制关闭</td></tr>
+      </tbody>
+    </table>
+    <div class="warn callout">
+      <span class="t">为什么"加不加 <code>--decorate</code> 看起来一样"</span>
+      <p>因为默认是 <code>auto</code>，你在终端里跑时它已经自动显示了。只有<strong>把输出重定向到文件或管道给别的程序</strong>时，两者才有区别：</p>
+<pre>git log --oneline --graph &gt; log.txt              # 不带装饰
+git log --oneline --graph --decorate &gt; log.txt   # 带装饰</pre>
+      <p>想行为稳定不随输出目标变化：<code>git config --global log.decorate short</code>。</p>
+    </div>
+
+    <h3>4.3 <code>git diff</code>：比的是哪两棵树</h3>
+    <table>
+      <thead><tr><th>命令</th><th>比较对象</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td><code>git diff</code></td><td>工作区 ↔ 暂存区</td><td>看"改了但还没 add"的内容</td></tr>
+        <tr><td><code>git diff --staged</code></td><td>暂存区 ↔ 版本库（HEAD）</td><td>看"add 了但还没 commit"的内容</td></tr>
+        <tr><td><code>git diff HEAD</code></td><td>工作区 ↔ 版本库</td><td>看全部未提交改动</td></tr>
+        <tr><td><code>git diff &lt;提交A&gt; &lt;提交B&gt;</code></td><td>两个提交之间</td><td>跨版本比较</td></tr>
+        <tr><td><code>git diff &lt;文件&gt;</code></td><td>限定单个文件</td><td>减少噪音</td></tr>
+      </tbody>
+    </table>
+    <div class="warn callout">
+      <span class="t">add 之后 <code>git diff</code> 会变空</span>
+      <p>因为那时"工作区 == 暂存区"没有差异了。想看已暂存的内容必须用 <code>git diff --staged</code>。</p>
+    </div>
+
+    <h4>读懂 diff 输出</h4>
+<pre>diff --git a/stats.py b/stats.py          ← a/ 是旧版本，b/ 是新版本
+index cde68d7..734a583 100644
+--- a/stats.py
++++ b/stats.py
+@@ -16,8 +16,14 @@ def minimum(numbers):     ← hunk 头：旧文件第16行起取8行，新文件第16行起取14行
+     return min(numbers)                     ← 行首无符号：上下文行（两边相同）
+ 
++def total(numbers):                         ← 行首 +：新增
++    return sum(numbers)
+-    return min(numbers)                     ← 行首 -：删除</pre>
+
+    <h4><code>git diff</code> 与选项顺序</h4>
+<pre class="bad">git diff 061ad11 README.md --stat
+fatal: option '--stat' must come before non-option arguments</pre>
+<pre class="ok">git diff --stat 061ad11 README.md          # 选项紧跟命令名
+git diff --stat 061ad11 -- README.md       # 用 -- 分隔"引用"与"路径"，最稳</pre>
+    <p><code>--</code> 之后的一切都当路径处理，不会误认成分支名。</p>
+
+    <h3>4.4 只属于 A 的提交：<code>A..B</code></h3>
+<pre>git log --oneline main..feature      # feature 有、main 没有的提交
+git log --oneline HEAD..origin/main  # 远程有、本地没有的提交</pre>
+    <p>这是判断"这次合并会带进来什么"的最快方法。</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="undo">
+    <h2 class="sec"><span class="num">05</span>回退与撤销</h2>
+
+    <div class="danger callout">
+      <span class="t">先记住这一条</span>
+      <p><strong>任何"丢弃改动"的操作，都先问自己一句：这些改动如果永远消失，我能接受吗？</strong> 能接受才用丢弃类命令；不能接受就用 <code>git stash</code>。</p>
+      <p>关键区别：<strong>已提交的东西几乎都能救回来</strong>（<code>reflog</code> / 孤立提交）；<strong>从未提交的改动救不回来</strong>——它从来没进过 Git。</p>
+    </div>
+
+    <h3>5.1 <code>git restore</code>：文件级别的撤销</h3>
+    <table>
+      <thead><tr><th>命令</th><th>作用</th><th>丢东西吗</th></tr></thead>
+      <tbody>
+        <tr><td><code>git restore &lt;文件&gt;</code></td><td>把工作区文件还原成暂存区/版本库的版本</td><td><strong>丢未提交改动</strong></td></tr>
+        <tr><td><code>git restore --staged &lt;文件&gt;</code></td><td>把文件移出暂存区（工作区不动）</td><td>不丢</td></tr>
+      </tbody>
+    </table>
+    <p>它是 Git 2.23 从 <code>checkout</code> 里拆出来的新命令——因为老的 <code>checkout</code> 一个人干了太多互相冲突的事。</p>
+
+    <h3>5.2 <code>git stash</code>：改动存进暂存栈</h3>
+<pre>git stash                    # 把当前改动存起来，工作区回到上次提交的状态
+git stash list               # 看栈里有什么
+git stash pop                # 恢复并删除栈顶
+git stash apply              # 恢复但保留栈顶
+git stash drop               # 丢弃栈顶</pre>
+    <p>典型场景：功能写到一半要紧急切分支修 bug。比 <code>restore</code> 安全，因为改动只是被挪走，没被销毁。</p>
+
+    <h3>5.3 <code>git reset</code>：移动分支指针</h3>
+    <p><code>reset</code> 移动的是<strong>分支指针</strong>（HEAD 跟着走），三个档位决定要不要顺带清空暂存区和工作区：</p>
+    <table>
+      <thead><tr><th>命令</th><th>分支指针</th><th>暂存区</th><th>工作区</th><th>危险度</th></tr></thead>
+      <tbody>
+        <tr><td><code>git reset --soft &lt;提交&gt;</code></td><td>回退</td><td><strong>保留</strong></td><td><strong>保留</strong></td><td>安全</td></tr>
+        <tr><td><code>git reset --mixed &lt;提交&gt;</code>（默认）</td><td>回退</td><td>清空</td><td><strong>保留</strong></td><td>安全</td></tr>
+        <tr><td><code>git reset --hard &lt;提交&gt;</code></td><td>回退</td><td>清空</td><td><strong>丢弃</strong></td><td><span style="color:var(--red)">危险</span></td></tr>
+      </tbody>
+    </table>
+<pre>回退前:  HEAD ──→ main ──→ C3 ──→ C2 ──→ C1
+回退后:  HEAD ──→ main ──→ C2 ──→ C1
+                          ↑
+                   C3 成了"孤立提交"（从树上摘下来，但还没被删除）</pre>
+
+    <div class="tip callout">
+      <span class="t">推荐 <code>--mixed</code>（默认）</span>
+      <p>它只动指针和暂存区，<strong>你的代码一个字节都不会丢</strong>，只是变成"改了但没 add"的状态，可以重新组织提交。</p>
+    </div>
+
+    <h3>5.4 救回来：<code>reflog</code> 与孤立提交</h3>
+<pre>git reflog                        # HEAD 的移动历史，每一步都在
+git reset --hard HEAD@{1}         # 回到上一步
+
+git fsck --lost-found             # 列出孤立提交/分支
+git checkout &lt;孤立提交哈希&gt;       # 分离头模式进去看看
+git branch rescue &lt;孤立提交哈希&gt;  # 把游离提交重新挂到分支上（救活）
+git gc --prune=now                # 手动清理孤立提交</pre>
+    <p>即使不手动 <code>gc</code>，孤立提交也会在约 90 天后被自动回收。</p>
+
+    <div class="danger callout">
+      <span class="t"><code>reflog</code> 救不了什么</span>
+      <p><code>reflog</code> 记录的是<strong>提交和指针的移动</strong>。<code>--hard</code> 销毁的<strong>未提交改动</strong>从未成为提交，reflog 里没有它——这是最容易造成真实损失的场景。</p>
+    </div>
+
+    <h3>5.5 <code>reset</code> vs <code>revert</code></h3>
+    <table>
+      <thead><tr><th></th><th><code>reset</code></th><th><code>revert</code></th></tr></thead>
+      <tbody>
+        <tr><td>本质</td><td><strong>改写历史</strong>（把时间倒回去）</td><td><strong>追加历史</strong>（记一笔"撤销"）</td></tr>
+        <tr><td>别人受影响吗</td><td>会（历史变了）</td><td>不会</td></tr>
+        <tr><td>适用</td><td>还没推送、只有自己</td><td><strong>已推送、别人可能基于它开发</strong></td></tr>
+      </tbody>
+    </table>
+<pre>git revert &lt;提交哈希&gt;            # 生成一个反向提交来抵消它
+git revert -m 1 &lt;合并提交哈希&gt;   # 撤销一个已被合并的 PR（-m 1 保留被合并分支的改动）</pre>
+
+    <h3>5.6 一句话决策</h3>
+    <div class="flow">这个提交推送到远程了吗？
+        │
+   ┌────┴─────────────────────────┐
+  没有                        已经推送 / 别人在用
+   │                              │
+git reset（改写历史）         git revert（追加历史）</div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="ignore">
+    <h2 class="sec"><span class="num">06</span>忽略文件</h2>
+
+    <p>在仓库根目录建 <code>.gitignore</code>，一行一条规则：</p>
+<pre># 目录
+build/
+__pycache__/
+
+# 通配符
+*.apk
+*.pyc
+preview_*.png
+
+# 特定文件
+debug.keystore
+.env
+
+# 例外（不要忽略这个）
+!important.log</pre>
+    <ul>
+      <li><strong>不带斜杠的名字在任意层级都匹配</strong>：<code>图片版/</code> 能匹配 <code>a/图片版/</code> 和 <code>a/b/图片版/</code></li>
+      <li><code>.gitignore</code> 本身应该被跟踪</li>
+      <li>空目录不会被 Git 跟踪——想保留目录就放个占位文件</li>
+    </ul>
+
+    <h3>6.1 已跟踪的文件不受 <code>.gitignore</code> 管辖</h3>
+<pre class="bad">$ git add secret.env
+The following paths are ignored by one of your .gitignore files:
+secret.env
+hint: Use -f if you really want to add them.</pre>
+    <p>反过来：<strong>已经被提交过的文件，再加进 <code>.gitignore</code> 是无效的</strong>。必须先从 Git 里移除：</p>
+<pre>git rm --cached secret.env      # 从版本库移除，但保留工作区文件
+echo "secret.env" &gt;&gt; .gitignore
+git commit -m "chore: 停止跟踪 secret.env"</pre>
+
+    <h3>6.2 什么该忽略：产物 vs 源素材</h3>
+    <p>核心判据：<strong>能不能由源码重新生成？能生成的不要进仓库。</strong></p>
+    <table>
+      <thead><tr><th>文件</th><th>进仓库？</th><th>理由</th></tr></thead>
+      <tbody>
+        <tr><td>源码（<code>.java</code> / <code>.py</code> / 资源 xml）</td><td>✅ 必须</td><td>真正的源</td></tr>
+        <tr><td>原始素材（设计图、照片）</td><td>✅ 要</td><td>没有它无法重新生成下游资源</td></tr>
+        <tr><td>构建产物（<code>.apk</code> / <code>.class</code> / <code>.dex</code> / <code>build/</code>）</td><td>❌ 不要</td><td>每次重建都是全新二进制，几 MB 起</td></tr>
+        <tr><td>密钥（<code>.keystore</code> / <code>.env</code> / 私钥）</td><td>❌ <strong>绝对不要</strong></td><td>泄露即事故</td></tr>
+        <tr><td>中间资源（压缩后的背景图）</td><td>看情况</td><td>若提交它能<strong>让构建不依赖额外工具链</strong>，就提交</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warn callout">
+      <span class="t">二进制产物为什么不能进仓库</span>
+      <ul style="margin:4px 0">
+        <li><strong>无法 diff / merge</strong>：两个分支都改了就只能在整文件之间二选一</li>
+        <li><strong>无法复用</strong>：源码改一行，重新编译出的二进制整个都不同，Git 只能完整重存一份</li>
+        <li><strong>永久占空间</strong>：<code>git rm</code> 只是"以后不跟踪"，旧对象永远留在 <code>.git/objects</code> 里，克隆时照样下载</li>
+        <li><strong>要清理必须改写历史</strong>（<code>filter-branch</code> / BFG），会破坏所有人的本地仓库</li>
+      </ul>
+      <p>正确做法：<strong>产物用 Releases 分发</strong>（见第 10 节）。</p>
+    </div>
+
+    <div class="tip callout">
+      <span class="t">已经误提交了大文件怎么办</span>
+      <p>如果还<strong>没推送</strong>，最干脆的办法是删掉 <code>.git</code> 重建：</p>
+<pre>rm -rf .git
+# 补好 .gitignore
+git init &amp;&amp; git add . &amp;&amp; git commit -m "init"</pre>
+      <p>一旦推送过，就不要再想"瘦身"了（除非能接受重写历史）。<strong>先检查再提交</strong>永远比事后补救便宜。</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="branch">
+    <h2 class="sec"><span class="num">07</span>分支</h2>
+
+    <h3>7.1 分支只是一个写着哈希的文件</h3>
+<pre>$ cat .git/refs/heads/main
+d9ff79d94cddbfa9f3e175317adbd69c53f68a10</pre>
+    <p>这就是全部。所以创建、切换、删除分支都是<strong>瞬间完成</strong>的——不复制任何文件。</p>
+
+    <h3>7.2 创建与切换</h3>
+<pre>git branch feature              # 只创建，不切换（人还站在原分支）
+git branch feature f865dc3      # 创建，并指定起点为某个提交
+git branch feature main         # 创建，从 main 的当前位置分出
+git checkout feature            # 切换
+git checkout -b feature         # 创建 + 切换，一步到位
+git checkout -b feature main    # 创建 + 切换 + 指定起点
+
+git switch feature              # 新式写法（与 checkout 等价，职责更单一）
+git branch -a                   # 本地 + 远程分支
+git branch -vv                  # 带上游跟踪关系
+git branch --merged             # 哪些分支已经被合并（删除前先看这个）</pre>
+
+    <div class="warn callout">
+      <span class="t"><code>git branch</code> 只创建、不切换</span>
+      <p>跑完 <code>git branch feature</code> 你还站在原分支上，必须再 <code>checkout</code>。这是最常见的困惑。</p>
+    </div>
+
+    <h3>7.3 切换分支会改变工作区文件</h3>
+    <p><code>checkout</code> 不只是换指针，它还会<strong>把工作区改造成目标提交的样子</strong>：</p>
+    <table>
+      <thead><tr><th>情况</th><th>Git 的行为</th></tr></thead>
+      <tbody>
+        <tr><td>文件在目标提交里存在、当前也在 → 内容不同</td><td>覆盖成目标版本</td></tr>
+        <tr><td>文件在目标提交里存在、当前没有</td><td>创建出来</td></tr>
+        <tr><td>文件在当前分支<strong>已跟踪</strong>、目标提交里没有</td><td><strong>删除</strong></td></tr>
+        <tr><td>文件从未被跟踪（Untracked）</td><td><strong>不动</strong>（不属于任何分支，Git 无权替你决定）</td></tr>
+      </tbody>
+    </table>
+
+    <h3>7.4 暂存区不随分支切换清空</h3>
+    <p><code>.git/index</code> <strong>全局只有一个</strong>，不带任何分支标记。切分支时它原封不动带过去。</p>
+    <div class="danger callout">
+      <span class="t">这会造成"提交进错分支"</span>
+      <p>在 A 分支 <code>add</code> 了改动、没提交就切到 B 分支，然后 <code>commit</code>——这个提交会落在 B 上。</p>
+      <p><strong>纪律：<code>commit</code> 之前先看 <code>git status</code> 第一行的 <code>On branch xxx</code>。</strong></p>
+    </div>
+    <p>而如果切换会<strong>覆盖</strong>你的暂存/未提交改动，Git 会拒绝：</p>
+<pre class="bad">error: Your local changes to the following files would be overwritten by checkout:
+        utils.py
+Please commit your changes or stash them before you switch branches.
+Aborting</pre>
+    <p>处理：<code>git stash</code>（想留）或 <code>git restore &lt;文件&gt;</code>（不要了）。</p>
+
+    <h3>7.5 删除分支：<code>-d</code> 与 <code>-D</code></h3>
+<pre>git branch -d feature     # 安全删除：未完全合并就拒绝
+git branch -D feature     # 强制删除：不管有没有合并</pre>
+<pre class="bad">$ git branch -d feature
+error: the branch 'feature' is not fully merged
+hint: If you are sure you want to delete it, run 'git branch -D feature'</pre>
+    <p>被拒绝说明该分支上有当前分支没有的提交。<strong>先想清楚再决定</strong>：</p>
+<pre>git log --oneline main..feature    # 看看到底有什么
+git show &lt;某个提交&gt;                # 看具体内容
+git merge feature                  # 想要就合并进来，然后 -d 就能删
+git branch -D feature              # 确认不要了，强删</pre>
+
+    <h3>7.6 分离头模式（detached HEAD）</h3>
+<pre>git checkout &lt;提交哈希&gt;     # 或 git checkout origin/main
+# → You are in 'detached HEAD' state</pre>
+    <p>此时 <code>.git/HEAD</code> 的内容从 <code>ref: refs/heads/main</code> 变成<strong>一串直接写的哈希</strong>：</p>
+<pre>正常:  HEAD ──→ main ──→ C2       (.git/HEAD 内容是 ref: refs/heads/main)
+分离:  HEAD ──────────→ C2        (.git/HEAD 内容是一个提交哈希)</pre>
+    <ul>
+      <li>可以<strong>查看</strong>任意提交的内容</li>
+      <li>也<strong>可以提交</strong>，但没有分支指向新提交，切走后容易丢</li>
+      <li>想保留就新建分支：<code>git switch -c rescue</code></li>
+      <li>想回去：<code>git checkout main</code></li>
+    </ul>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="merge">
+    <h2 class="sec"><span class="num">08</span>合并与冲突</h2>
+
+    <h3>8.1 先判断：这次会不会"真的合并"</h3>
+    <p>Git 动手前先问一句：<strong>"要合进来的分支，是不是我当前分支的祖先？"</strong></p>
+    <table>
+      <thead><tr><th>判断结果</th><th>行为</th><th>会产生新节点吗</th><th>可能冲突吗</th></tr></thead>
+      <tbody>
+        <tr><td><strong>是祖先</strong>（对方的一切我都有了）</td><td><strong>fast-forward</strong>：指针直接滑过去</td><td>❌ 不会</td><td>❌ 不可能</td></tr>
+        <tr><td><strong>不是祖先</strong>（对方有我缺的东西）</td><td><strong>三方合并</strong>：真的合并内容</td><td>✅ 产生合并提交</td><td>⚠️ 可能</td></tr>
+      </tbody>
+    </table>
+<pre>fast-forward 之前:              fast-forward 之后:
+  main ──→ C2                     main    ──┐
+              └──→ C3              feature ──┴──→ C3
+  feature ─→ C3                   （两个标签重合了）</pre>
+
+    <h3>8.2 三方合并：Git 到底在合什么</h3>
+<pre>        merge base（共同祖先）
+             │
+    ┌────────┴────────┐
+    │                 │
+ 在 A 上改了什么     在 B 上改了什么
+    │                 │
+    └────────┬────────┘
+             ↓
+      把两边改动合成一份</pre>
+    <p><strong>不是"把 B 的子树搬过来"</strong>，而是"以共同祖先为基准，把两边的改动合在一起"。所以合并后两条线的成果共存。</p>
+    <p>合并提交有<strong>两个父</strong>：</p>
+<pre>d24c4ae parents=[15a91d5 c140c3f]
+               └─父1      └─父2
+        父1 = 你当时所在分支的尖端
+        父2 = 被合进来的分支尖端</pre>
+
+    <h3>8.3 冲突的条件</h3>
+    <div class="note callout">
+      <span class="t">冲突 = 两个条件同时满足</span>
+      <p>① 是<strong>真合并</strong>（不是 fast-forward）；② 两边<strong>改动了同一段内容</strong>且改法不同。</p>
+    </div>
+    <table>
+      <thead><tr><th>情况</th><th>结果</th></tr></thead>
+      <tbody>
+        <tr><td>两边改了<strong>不同文件</strong></td><td>✅ 自动合并</td></tr>
+        <tr><td>两边改了<strong>同一文件的不同区域</strong>（中间隔着足够多未改动行）</td><td>✅ 自动合并</td></tr>
+        <tr><td>两边改了<strong>同一区域、改法不同</strong></td><td>💥 <strong>冲突</strong></td></tr>
+        <tr><td>两边改了<strong>同一区域、改法相同</strong></td><td>✅ 自动接受</td></tr>
+        <tr><td>一边删文件、另一边改它</td><td>💥 冲突</td></tr>
+        <tr><td>二进制文件两边都改</td><td>💥 冲突（只能整文件二选一）</td></tr>
+      </tbody>
+    </table>
+    <p><strong>新手常高估冲突频率</strong>：大部分合并都是静默成功的，冲突只在"动到同一块地方"时才出现。</p>
+
+    <h3>8.4 冲突长什么样</h3>
+<pre>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+    return math.fsum(numbers) / len(numbers)     ← 当前分支（HEAD）的版本
+=======
+    return sum(numbers) / float(len(numbers))    ← 被合进来那一方（feature）的版本
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature</pre>
+    <p><strong>记忆口诀：<code>HEAD</code> 在上面，被合进来的分支在下面。</strong></p>
+    <p>为什么 Git 不自己选：两边都可能是"正确的改动"（一个为精度，一个为显式类型转换），选哪个取决于人的意图。Git 没有立场替你决定，所以把两个版本都写进文件。</p>
+
+    <h3>8.5 解决冲突：四步</h3>
+<pre># 1. 看清现场
+git status                     # Unmerged paths / both modified
+git diff                       # 看冲突内容
+
+# 2. 编辑文件：删掉 &lt;&lt;&lt;&lt;&lt;&lt;&lt; ======= &gt;&gt;&gt;&gt;&gt;&gt;&gt; 三行标记，
+#    保留想要的内容（可以选 A、选 B，也可以融合成新写法）
+
+# 3. 验证（这一步不能省！）
+grep -n '&lt;&lt;&lt;&lt;&lt;&lt;&lt;\|=======\|&gt;&gt;&gt;&gt;&gt;&gt;&gt;' &lt;文件&gt;   # 应无输出
+python &lt;文件&gt;                                    # 应能正常跑
+
+# 4. 标记已解决并完成合并
+git add &lt;文件&gt;            # 在冲突状态下，这条的含义是"我处理完了，请放行"
+git merge --continue      # 或直接 git commit</pre>
+
+    <div class="danger callout">
+      <span class="t"><code>git add</code> 是"声明"，不是"解决"</span>
+      <p><strong>Git 无法检查你是否真的解决了冲突。</strong> <code>git add</code> 的唯一含义是"我声明这个文件处理好了"，Git 只能相信你。</p>
+      <p>所以：<strong>带着 <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> 标记 <code>add</code> 再 <code>commit</code>，那些标记会被永久写进仓库</strong>，文件也变成语法错误。<code>git status</code> 显示"All conflicts fixed"不代表真的修好了。</p>
+      <p>这也是团队用 <code>pre-commit</code> 钩子扫描冲突标记的原因。</p>
+    </div>
+
+    <h4>合并相关命令</h4>
+<pre>git merge --abort          # 只要还没 commit，一步还原到合并前
+git checkout -m -- &lt;文件&gt;  # 把文件恢复成"冲突未解决"的原始状态
+git merge --no-ff &lt;分支&gt;   # 即使能 fast-forward 也强制生成合并提交（保留分支痕迹）
+git merge --squash &lt;分支&gt;  # 把对方的多个提交压缩成一个，不产生合并提交
+git merge &lt;分支&gt; -m "..."  # 直接指定合并信息，不弹编辑器</pre>
+
+    <h3>8.6 "先合并进来再合回去"的四步法</h3>
+<pre>git checkout feature
+git merge main        # ← 冲突在这一步爆发，也在这里解决
+git checkout main
+git merge feature     # ← 此时是 fast-forward，不可能冲突</pre>
+
+    <div class="note callout">
+      <span class="t">为什么第四步不会冲突</span>
+      <p>因为第二步完成后，<strong>main 的尖端已经是 feature 的祖先</strong>了，第四步退化为 fast-forward——<strong>没有内容需要合并，自然不可能冲突</strong>。</p>
+      <p>这不是"冲突被解决了"，而是"这一步无事可做，只挪指针"。</p>
+      <p>⚠️ 前提：如果第二到第四步之间 main 又动了，第四步就会变成真合并，冲突可能再次出现。</p>
+    </div>
+    <p>这个模式的真正价值：<strong>把冲突解决从网页编辑器搬到本地</strong>——能在 VS Code 里做三路对比，能跑测试验证，能看提交历史。</p>
+
+    <h3>8.7 <code>merge</code> vs <code>rebase</code></h3>
+    <table>
+      <thead><tr><th></th><th><code>merge</code></th><th><code>rebase</code></th></tr></thead>
+      <tbody>
+        <tr><td>历史形状</td><td>保留分叉，产生合并节点</td><td><strong>线性</strong>，像从未分叉</td></tr>
+        <tr><td>哈希</td><td>原有提交不变</td><td><strong>全部重算</strong>（变基会改变提交哈希）</td></tr>
+        <tr><td>适合</td><td>公共分支、需要保留真实历史</td><td>本地私有分支、追求整洁线性历史</td></tr>
+      </tbody>
+    </table>
+<pre>git rebase main                  # 把当前分支的提交"重放"到 main 顶端
+git rebase -i &lt;基点&gt;             # 交互式：重排、squash、reword、drop
+git rebase --continue            # 解完冲突继续
+git rebase --abort               # 放弃</pre>
+
+    <div class="danger callout">
+      <span class="t">改写历史的铁律</span>
+      <p><strong>不要 rebase 已经推送、别人可能基于它工作的提交。</strong> 变基会重写哈希，别人的历史就对不上了。已经公开的东西用 <code>revert</code>。</p>
+    </div>
+
+    <h3>8.8 "区间内含分叉点"的报错</h3>
+<pre class="bad">Cannot safely rewrite the source range — applying the rewrite would orphan refs
+Interior fork(s) detected — every commit in the rewritten range (except the tip)
+must have exactly one child within the range:
+  - f865dc30: has 2 children (d9ff79d9, 15a91d5a)</pre>
+    <p><strong>原因</strong>：变基类操作要求重写区间是一条<strong>直线</strong>，但你把一个<strong>分叉点</strong>也圈进了区间——它有 2 个子提交。把它"摘下来重贴"会让原来的两条线失去父节点，产生历史碎片。</p>
+    <p><strong>正确写法</strong>：用 <code>^</code> 把分叉点排除在区间外。</p>
+<pre class="bad">git rebase -i f865dc3          # ❌ 把分叉点也圈进来
+git rebase -i f865dc3^         # ✅ 从分叉点的父开始，只圈它之后的
+git rebase --onto main f865dc3 feature   # ✅ 明确指定起点与终点</pre>
+    <p>这类报错常出现在 <strong>GitLens 的 Compose / 交互式变基</strong>这类"自动改写历史"的功能上——它对历史形状的要求比手动命令更严格。</p>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="remote">
+    <h2 class="sec"><span class="num">09</span>远程仓库</h2>
+
+    <h3>9.1 关联远程</h3>
+<pre>git remote add origin git@github.com:USER/REPO.git   # 添加（origin 是习惯用的名字）
+git remote -v                                        # 查看
+git remote set-url origin &lt;新地址&gt;                    # 换地址（如 HTTPS ↔ SSH）
+git remote remove origin                             # 移除</pre>
+
+    <h3>9.2 首次推送与上游跟踪（<code>-u</code>）</h3>
+<pre>git push -u origin main</pre>
+    <p><code>-u</code> 是 <code>--set-upstream</code>，建立<strong>本地分支 → 远程分支</strong>的跟踪关系。之后就可以直接：</p>
+    <table>
+      <thead><tr><th>命令</th><th>有跟踪关系</th><th>没有跟踪关系</th></tr></thead>
+      <tbody>
+        <tr><td><code>git push</code></td><td>✅ 直接推当前分支</td><td>❌ 要写 <code>git push origin main</code></td></tr>
+        <tr><td><code>git pull</code></td><td>✅ 直接拉</td><td>❌ 要写全</td></tr>
+        <tr><td><code>git status</code></td><td>✅ 显示领先/落后几个提交</td><td>❌ 不显示</td></tr>
+      </tbody>
+    </table>
+    <p>成功标志（会打印出来）：</p>
+<pre>branch 'main' set up to track 'origin/main'.</pre>
+    <p>本地分支名和远程不一致时，用冒号指定：</p>
+<pre>git push -u origin master:main      # 把本地 master 推到远程 main</pre>
+
+    <h3>9.3 <code>origin/main</code> 是什么</h3>
+    <div class="note callout">
+      <span class="t">它是本地的一个只读引用</span>
+      <ul style="margin:4px 0">
+        <li>指向<strong>上次 fetch/push 时</strong>远程 main 的样子</li>
+        <li><strong>只在 fetch / push 时更新</strong>——别人刚推了代码而你没 fetch，你的 <code>origin/main</code> 就是过时的</li>
+        <li>checkout 到它会进入<strong>分离头模式</strong></li>
+        <li>别人推了新代码而你没 fetch → <code>git status</code> 也不知道你落后了</li>
+      </ul>
+    </div>
+
+    <h3>9.4 <code>fetch</code> vs <code>pull</code></h3>
+<pre>git pull  =  git fetch  +  git merge origin/main</pre>
+    <table>
+      <thead><tr><th>命令</th><th>做什么</th><th>动工作区吗</th></tr></thead>
+      <tbody>
+        <tr><td><code>git fetch</code></td><td>只下载远程新提交，更新 <code>origin/main</code></td><td>❌ <strong>不动</strong></td></tr>
+        <tr><td><code>git merge origin/main</code></td><td>把下载来的提交合并进当前分支</td><td>✅ 会，可能冲突</td></tr>
+        <tr><td><code>git pull</code></td><td>上面两步一次做完</td><td>✅</td></tr>
+      </tbody>
+    </table>
+    <p>更可控的写法（推荐）：</p>
+<pre>git fetch
+git log --oneline HEAD..origin/main   # 先看看远程多了什么
+git diff HEAD origin/main             # 再看看具体改了什么
+git merge origin/main                 # 确认没问题再合并</pre>
+
+    <h3>9.5 push 被拒绝：non-fast-forward</h3>
+<pre class="bad">! [rejected]        main -&gt; main (fetch first)
+error: failed to push some refs to 'git@github.com:...'
+hint: Updates were rejected because the remote contains work that you do
+hint: not have locally.</pre>
+    <p><strong>为什么会拒绝</strong>：远程有你没有的提交。Git 的原则是<strong>只允许在远程历史末尾追加，不允许覆盖</strong>——否则会删掉别人的工作。</p>
+    <p>正确处理：</p>
+<pre>git pull        # 拉下来合并（冲突在这里解决）
+# 解完冲突：git add . → git commit
+git push</pre>
+    <p>错误处理：<code>git push -f</code>（会毁掉别人的提交）。</p>
+
+    <h3>9.6 push 与冲突的关系（重要澄清）</h3>
+    <div class="tip callout">
+      <span class="t">push 永远不会产生冲突文件</span>
+      <p>冲突是 <strong>merge / rebase / pull</strong> 的产物，全是本地操作。push 只负责把已有提交传输到远程。</p>
+    </div>
+    <table>
+      <thead><tr><th>你的处境</th><th>push 的结果</th></tr></thead>
+      <tbody>
+        <tr><td>有未解决冲突、尚未提交</td><td><code>Everything up-to-date</code>，什么都不发生（没提交可推）</td></tr>
+        <tr><td>把冲突标记一起提交了</td><td><strong>推送成功</strong>，坏文件上网（事故）——push 不做内容检查</td></tr>
+        <tr><td>远程有你没有的提交</td><td><strong>被拒绝</strong>（fetch first），<strong>不产生冲突文件</strong></td></tr>
+        <tr><td>解完冲突并提交后</td><td>正常成功</td></tr>
+      </tbody>
+    </table>
+    <p><strong>一句话</strong>：冲突是本地的事，push 是传输的事。</p>
+
+    <h3>9.7 强制推送</h3>
+    <table>
+      <thead><tr><th>命令</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><code>git push -f</code> / <code>--force</code></td><td><span style="color:var(--red)">危险</span>：无条件覆盖远程，可能丢失他人提交</td></tr>
+        <tr><td><code>git push --force-with-lease</code></td><td><strong>推荐</strong>：推送前检查远程有没有新提交，有就拒绝</td></tr>
+      </tbody>
+    </table>
+
+    <h3>9.8 同步状态：ahead / behind</h3>
+<pre>## main...origin/main              ← 完全同步
+## main...origin/main [ahead 1]    ← 本地多 1 个提交（该 push 了）
+## main...origin/main [behind 2]   ← 远程多 2 个（该 pull 了）
+## main...origin/main [ahead 1, behind 2]  ← 分叉了，需要合并</pre>
+<pre>git rev-list --left-right --count main...origin/main
+# 输出 "0  0" 表示两边一致；"1  2" 表示本地多 1、远程多 2</pre>
+
+    <h3>9.9 标签（tag）</h3>
+    <p>标签是<strong>固定书签</strong>，标记发布里程碑。和分支不同，它<strong>不会随提交移动</strong>。</p>
+<pre>git tag v1.0                       # 轻量标签
+git tag -a v1.0 -m "首个版本"       # 附注标签（推荐用于发布）
+git tag -a v1.0 &lt;提交哈希&gt;         # 给特定提交打标签
+git tag                            # 列出
+git tag -d v1.0                    # 删除本地
+git push --tags                    # 推送所有标签
+git push origin --delete v1.0      # 删除远程标签</pre>
+
+    <div class="warn callout">
+      <span class="t"><code>git push</code> 不会推标签</span>
+      <p>标签必须显式 <code>git push --tags</code>。这是有意设计的：标签代表发布，不该跟着分支自动变动。</p>
+    </div>
+
+    <h4>轻量标签 vs 附注标签</h4>
+    <table>
+      <thead><tr><th></th><th>轻量 lightweight</th><th>附注 annotated</th></tr></thead>
+      <tbody>
+        <tr><td>创建</td><td><code>git tag v1.0</code></td><td><code>git tag -a v1.0 -m "..."</code></td></tr>
+        <tr><td>本质</td><td>直接指向提交的引用</td><td><strong>一个独立的 Git 对象</strong>（含打标签人、时间、说明），再指向提交</td></tr>
+        <tr><td><code>git cat-file -t</code></td><td><code>commit</code></td><td><code>tag</code></td></tr>
+        <tr><td><code>ls-remote</code> 显示</td><td>1 行</td><td><strong>2 行</strong></td></tr>
+      </tbody>
+    </table>
+<pre>$ git ls-remote --tags origin
+96faf9e...  refs/tags/v1.0        ← tag 对象本身
+cf78e2b...  refs/tags/v1.0^{}     ← ^{} 是"剥离"语法：层层剥开直到露出提交</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="gh">
+    <h2 class="sec"><span class="num">10</span>GitHub 进阶：gh / Pages / Releases</h2>
+
+    <h3>10.1 GitHub CLI（<code>gh</code>）</h3>
+<pre># 登录：选 Login with a web browser，协议选 SSH，公钥已手动加过就 Skip
+gh auth login
+gh auth status
+gh auth refresh -s delete_repo        # 追加某个 scope（不登出）
+
+# 建仓库 + 关联 + 推送，一步完成
+gh repo create myrepo --public --source . --remote origin --push
+
+# 仓库改名（旧地址会重定向，Pages 地址不会）
+gh repo rename newname --repo OWNER/oldname --yes
+
+# PR 流程（全在本地完成，不开浏览器）
+git checkout -b temp-branch
+git commit -am "feat: xxx"
+git push -u origin temp-branch
+gh pr create --title "feat: xxx" --body "" --base main
+gh pr merge --squash --delete-branch      # 或 --rebase
+git checkout main &amp;&amp; git pull &amp;&amp; git branch -d temp-branch</pre>
+
+    <p><code>gh config</code> 在 <code>gh auth login</code> 时会自动设置 <code>git_protocol=ssh</code>，所以之后 <code>gh</code> 和 git 都走 SSH。</p>
+
+    <h3>10.2 <code>gh api</code>：任何 GitHub 操作都能做</h3>
+    <p>网页上的按钮 ≈ 一次 REST API 调用。<code>gh api</code> 就是直接调那个调用——所以<strong>没有按钮的功能也能通过它完成</strong>。</p>
+<pre># 查询
+gh api repos/OWNER/REPO
+gh api "repos/OWNER/REPO/deployments?per_page=20"
+gh api repos/OWNER/REPO/pages
+
+# 修改（-X 指定方法，-f 传字段）
+gh api -X POST repos/OWNER/REPO/pages -f "source[branch]=main" -f "source[path]=/"
+
+# 删除（注意：有些资源要求先标记为 inactive）
+gh api -X POST repos/OWNER/REPO/deployments/&lt;id&gt;/statuses -f state=inactive
+gh api -X DELETE repos/OWNER/REPO/deployments/&lt;id&gt;</pre>
+
+    <div class="warn callout">
+      <span class="t">PowerShell 下 <code>gh api</code> 的两个坑</span>
+      <p><strong>① 管道传 JSON 容易失败</strong>（报 <code>Problems parsing JSON</code>）。原因常是输入法把直引号换成了弯引号，或在 cmd 里单引号不被当作定界符。改用 <code>-f "key=value"</code> 完全绕开 JSON 字符串；嵌套用方括号 <code>source[branch]=main</code>。</p>
+      <p><strong>② <code>--jq</code> 表达式含空格时会被 PowerShell 拆成多个参数</strong>。改用 <code>ConvertFrom-Json</code> 解析，或把表达式写成不含空格的形式。</p>
+    </div>
+
+    <h3>10.3 GitHub Pages：把 HTML 变成网站</h3>
+    <div class="note callout">
+      <span class="t">关键认知</span>
+      <p><strong>仓库里的 HTML 不会"显示"，只会显示源码。</strong> 点开 <code>.html</code> 文件看到的是标签文本。要真正浏览网页，必须开启 Pages。</p>
+      <p><strong>Pages 不是一个独立网站，而是仓库的一个属性。</strong> 地址由仓库名决定：<code>https://&lt;user&gt;.github.io/&lt;repo&gt;/</code>。改仓库名，地址跟着变；不存在"旧站点"需要删除。</p>
+    </div>
+
+    <p>开启方式（免费账号需要<strong>公开仓库</strong>）：</p>
+<pre># 网页：Settings → Pages → Source: Deploy from a branch → main / (root) → Save
+
+# 或命令行
+gh api -X POST repos/OWNER/REPO/pages -f "source[branch]=main" -f "source[path]=/"</pre>
+
+    <p>构建状态（异步，约 30–60 秒）：</p>
+<pre>gh api repos/OWNER/REPO/pages          # status: null → building → built / errored
+gh api repos/OWNER/REPO/pages/builds/latest    # 失败时查原因</pre>
+
+    <h3>10.4 Pages 的项目结构约定</h3>
+    <ul>
+      <li><strong><code>index.html</code> 放根目录</strong> → 访问 <code>https://user.github.io/repo/</code> 直接打开它</li>
+      <li>所有资源用<strong>相对路径</strong> → 站点可整体移动到任意子目录而不需改链接</li>
+      <li>推送后 Pages 会<strong>自动重新部署</strong>，不需要再进设置页</li>
+      <li>中文文件名在 URL 里会被百分号编码，能用但不美观</li>
+    </ul>
+
+    <h3>10.5 Release：分发二进制产物的正确姿势</h3>
+<pre>gh release create v1.0 app.apk --title "v1.0" --notes "首个版本"</pre>
+    <table>
+      <thead><tr><th></th><th>塞进仓库</th><th>走 Release</th></tr></thead>
+      <tbody>
+        <tr><td>占 Git 历史</td><td>✅ 永久占</td><td>❌ 不占</td></tr>
+        <tr><td>下载方式</td><td>要 clone 整个仓库</td><td>点一下直接下</td></tr>
+        <tr><td>适合</td><td>❌ 不适合</td><td>✅ 二进制、安装包、数据集</td></tr>
+      </tbody>
+    </table>
+
+    <h3>10.6 改仓库名之后</h3>
+    <table>
+      <thead><tr><th>类型</th><th>旧地址</th></tr></thead>
+      <tbody>
+        <tr><td>仓库地址 <code>github.com/user/old</code></td><td><strong>永久重定向</strong>到新名（旧 clone/push 地址继续可用）</td></tr>
+        <tr><td>Pages 地址 <code>user.github.io/old/</code></td><td><strong>直接 404，不重定向</strong></td></tr>
+        <tr><td>Deployments 里的历史记录</td><td>保留旧 URL 的卡片，可用 <code>gh api</code> 删除</td></tr>
+      </tbody>
+    </table>
+    <p>想让旧链接不 404，可以建一个同名仓库，放一份纯跳转页：</p>
+<pre>&lt;meta http-equiv="refresh" content="0;url=https://user.github.io/newname/"&gt;</pre>
+
+    <h3>10.7 其他开发笔记：不把密钥提交上去</h3>
+    <p>误把 <code>.env</code> 提交了怎么办：</p>
+<pre>git rm --cached .env
+echo ".env" &gt;&gt; .gitignore
+git commit --amend --no-edit        # 如果还没推送、只错在最新一次提交</pre>
+    <p>若更早的提交里也有，必须用交互式 rebase 或 <code>filter-branch</code> / BFG 清理历史。<strong>但无论如何都可能清理不干净——最可靠的动作是立刻轮换密钥 / 改密码。</strong></p>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="pitfalls">
+    <h2 class="sec"><span class="num">11</span>踩坑清单</h2>
+    <p>以下都是真实遇到过的报错，按"现象 → 原因 → 处理"整理。</p>
+
+    <table>
+      <thead><tr><th>报错 / 现象</th><th>原因</th><th>处理</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>Saving key failed: No such file or directory</code></td>
+          <td><code>ssh-keygen</code> 不会自动创建 <code>~/.ssh</code> 目录</td>
+          <td>先 <code>mkdir ~/.ssh</code></td>
+        </tr>
+        <tr>
+          <td><code>Error connecting to agent: No such file or directory</code></td>
+          <td>ssh-agent 服务没启动（Windows 默认 Disabled）</td>
+          <td>管理员 PowerShell：<code>Set-Service ssh-agent -StartupType Automatic</code> + <code>Start-Service ssh-agent</code></td>
+        </tr>
+        <tr>
+          <td><code>UNPROTECTED PRIVATE KEY FILE</code></td>
+          <td>私钥权限过宽</td>
+          <td><code>icacls &lt;私钥&gt; /inheritance:r /grant:r "$($env:USERNAME):(R)"</code></td>
+        </tr>
+        <tr>
+          <td><code>fatal: pathspec 'x.py' did not match any files</code></td>
+          <td>文件不存在。<code>git add</code> 不会创建文件</td>
+          <td>先创建文件再 add</td>
+        </tr>
+        <tr>
+          <td><code>error: Your local changes ... would be overwritten by checkout</code></td>
+          <td>切分支会覆盖未提交改动</td>
+          <td><code>git stash</code>（想留）或 <code>git restore &lt;文件&gt;</code>（不要）</td>
+        </tr>
+        <tr>
+          <td><code>error: the branch 'x' is not fully merged</code></td>
+          <td>该分支有当前分支没有的提交</td>
+          <td>先 <code>git log main..x</code> 确认，合并或 <code>-D</code> 强删</td>
+        </tr>
+        <tr>
+          <td><code>fatal: option '--stat' must come before non-option arguments</code></td>
+          <td>选项写在了路径后面</td>
+          <td>选项紧跟命令名；用 <code>--</code> 分隔引用与路径</td>
+        </tr>
+        <tr>
+          <td><code>! [rejected] main -&gt; main (fetch first)</code></td>
+          <td>远程有本地没有的提交</td>
+          <td><code>git pull</code> 后再推，不要 <code>-f</code></td>
+        </tr>
+        <tr>
+          <td>加不加 <code>--decorate</code> 输出一样</td>
+          <td>默认是 <code>auto</code>，终端下自动显示</td>
+          <td>只有重定向/管道时才有区别；想固定用 <code>log.decorate short</code></td>
+        </tr>
+        <tr>
+          <td><code>git log --graph</code> 里节点位置和祖先关系对不上</td>
+          <td>按时间排序，不同分支节点会穿插</td>
+          <td>用 <code>--format="%h parents=[%p]"</code> 直接看父节点</td>
+        </tr>
+        <tr>
+          <td><code>gh api</code> 报 <code>Problems parsing JSON</code> (400)</td>
+          <td>管道传的 JSON 被引号污染（输入法弯引号 / cmd 单引号）</td>
+          <td>改用 <code>-f "key=value"</code>，嵌套用 <code>a[b]=v</code></td>
+        </tr>
+        <tr>
+          <td><code>gh api</code> 报 <code>Unknown JSON field</code></td>
+          <td><code>gh repo view --json</code> 的字段名猜错</td>
+          <td>照报错里列出的可用字段名改（如 <code>homepage</code> → <code>homepageUrl</code>）</td>
+        </tr>
+        <tr>
+          <td>PowerShell 报 <code>Unexpected token '??'</code></td>
+          <td>PowerShell 5.1 不支持 null 合并运算符</td>
+          <td>用 <code>if (-not $x) { ... }</code> 代替</td>
+        </tr>
+        <tr>
+          <td>合并时卡在编辑器里出不来</td>
+          <td>Git 打开了 nano/vim 等你确认提交信息</td>
+          <td>nano：<code>Ctrl+O</code>→<code>Enter</code>→<code>Ctrl+X</code>；vim：<code>Esc</code>→<code>:wq</code>→<code>Enter</code></td>
+        </tr>
+        <tr>
+          <td>提交里带着 <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> 标记</td>
+          <td>冲突没解决就 <code>git add</code> 了（Git 无法验证）</td>
+          <td>用 <code>pre-commit</code> 钩子扫描；提交前务必 grep 一遍标记</td>
+        </tr>
+        <tr>
+          <td>仓库体积莫名很大，删了文件也没变小</td>
+          <td>历史里的对象永远保留</td>
+          <td>未推送就删 <code>.git</code> 重建；已推送则只能改写历史</td>
+        </tr>
+        <tr>
+          <td>中文文件名显示成 <code>\345\233\276</code></td>
+          <td><code>core.quotepath</code> 默认 true</td>
+          <td><code>git config --global core.quotepath false</code></td>
+        </tr>
+        <tr>
+          <td>改历史的操作报 <code>Interior fork(s) detected</code></td>
+          <td>重写区间里圈进了分叉点</td>
+          <td>用 <code>&lt;分叉点&gt;^</code> 排除它（见 8.8）</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============================================================ -->
+  <section id="cheatsheet">
+    <h2 class="sec"><span class="num">12</span>命令速查表</h2>
+
+    <h3>配置</h3>
+<pre>git config --global user.name "名字"
+git config --global user.email "邮箱"
+git config --global init.defaultBranch main
+git config --global core.editor "code --wait"
+git config --global core.quotepath false
+git config --global --list</pre>
+
+    <h3>仓库与提交</h3>
+<pre>git init                     git clone &lt;url&gt;
+git status                   git status --short --branch
+git add &lt;文件&gt; / git add .
+git commit -m "信息"          git commit --amend --no-edit
+git rm --cached &lt;文件&gt;        git rm &lt;文件&gt;</pre>
+
+    <h3>查看</h3>
+<pre>git log --oneline --decorate --graph --all
+git log --format="%h parents=[%p] refs=[%d] %s"
+git log --oneline main..feature
+git diff                     git diff --staged
+git diff --stat &lt;提交&gt;
+git show &lt;提交&gt;              git rev-list --left-right --count A...B</pre>
+
+    <h3>撤销</h3>
+<pre>git restore &lt;文件&gt;             # 丢弃工作区改动（危险）
+git restore --staged &lt;文件&gt;    # 移出暂存区
+git stash / git stash pop      # 暂存栈
+git reset --soft &lt;提交&gt;        # 退提交，保留暂存区与工作区
+git reset &lt;提交&gt;               # 退提交，保留工作区（默认 --mixed）
+git reset --hard &lt;提交&gt;        # 全丢（危险）
+git revert &lt;提交&gt;              # 追加反向提交
+git reflog                     # 后悔药</pre>
+
+    <h3>分支与合并</h3>
+<pre>git branch                     git branch -vv
+git branch &lt;名&gt; [&lt;起点&gt;]        git branch -d / -D &lt;名&gt;
+git checkout &lt;分支&gt;            git checkout -b &lt;分支&gt; [&lt;起点&gt;]
+git switch &lt;分支&gt;
+git merge &lt;分支&gt;               git merge --abort
+git merge --no-ff / --squash   git merge --continue
+git rebase &lt;基点&gt;              git rebase -i &lt;基点&gt;
+git rebase --continue / --abort</pre>
+
+    <h3>远程与标签</h3>
+<pre>git remote -v                 git remote add origin &lt;url&gt;
+git remote set-url origin &lt;url&gt;
+git push -u origin main       git push
+git push --tags               git push --force-with-lease
+git fetch                     git pull
+git branch -r                 git log --oneline -1 origin/main
+git tag / git tag -a v1.0 -m "..." / git tag -d v1.0</pre>
+
+    <h3>GitHub CLI</h3>
+<pre>gh auth login                 gh auth status
+gh repo create &lt;名&gt; --public --source . --remote origin --push
+gh repo rename &lt;新名&gt; --repo OWNER/&lt;旧名&gt; --yes
+gh repo view OWNER/REPO       gh repo list
+gh pr create --title "..." --body "" --base main
+gh pr merge --squash --delete-branch
+gh release create v1.0 &lt;文件&gt; --title "v1.0" --notes "..."
+gh api repos/OWNER/REPO/...</pre>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <h2 class="sec">附：学习路径建议</h2>
+    <ol>
+      <li><strong>先立模型</strong>：三棵树 + 指针链（第 1 节）。不建立这个，后面全靠背。</li>
+      <li><strong>走通最小闭环</strong>：<code>init</code> → <code>status</code> → <code>add</code> → <code>commit</code> → <code>log</code>，在一个空目录里反复做三遍。</li>
+      <li><strong>学会读</strong>：<code>git log --graph</code> 和 <code>git diff</code>。这是"看懂状态"的能力，比会敲命令重要。</li>
+      <li><strong>再动危险命令</strong>：<code>reset</code> 三档、<code>restore</code>、<code>stash</code>。练之前先 <code>git branch backup</code>。</li>
+      <li><strong>分支与冲突</strong>：故意造一次冲突并解决。这是日常用得最多、也最容易卡住的环节。</li>
+      <li><strong>接远程</strong>：<code>push -u</code> → 改代码 → <code>push</code> → 在网页上改一处 → <code>pull</code>，体会 ahead/behind。</li>
+      <li><strong>PR 流程</strong>：<code>gh pr create</code> / <code>gh pr merge --squash</code>，全本地完成。</li>
+      <li><strong>静态站点</strong>：把一个 <code>index.html</code> 推上去、开 Pages、看到网页。</li>
+    </ol>
+
+    <div class="tip callout">
+      <span class="t">最高性价比的三个习惯</span>
+      <ol style="margin:4px 0">
+        <li><strong>动手前先 <code>git status</code></strong>，确认 <code>On branch xxx</code> 和当前状态</li>
+        <li><strong>改历史前先 <code>git branch backup-&lt;日期&gt;</code></strong>，成本 1 秒</li>
+        <li><strong>不确定就 <code>git stash</code>，别 <code>restore</code></strong>——前者能救，后者不能</li>
+      </ol>
+    </div>
+
+    <p style="color:var(--faint);font-size:13px;margin-top:22px">
+      本篇整理自一次完整的实操过程：配置 Git 与 SSH → 本地提交 → 分支分叉 → 制造并解决冲突 → 推送到 GitHub → 部署 Pages → 重构为多集合站点。文中所有报错均为真实出现过的原文。
+    </p>
+  </section>
+
+  <footer>
+    托管于 GitHub Pages · 仓库 <code>Azure-Wind/notes</code><br>
+    <a href="../">← 返回笔记库</a> · <a href="./">入门指南索引</a>
+  </footer>
+
+</div>
+</body>
+</html>

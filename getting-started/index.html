@@ -41,6 +41,16 @@
   ul.plan li:first-child{border-top:none;}
   ul.plan b{color:var(--ink);}
 
+  .list{margin-top:14px;display:grid;gap:10px;}
+  a.item{display:block;background:var(--paper);border:1px solid var(--line);border-radius:10px;
+         padding:16px 20px;text-decoration:none;color:inherit;
+         transition:border-color .15s,box-shadow .15s;}
+  a.item:hover{border-color:var(--navy);box-shadow:0 2px 8px rgba(31,78,121,.10);}
+  a.item:focus-visible{outline:2px solid var(--navy);outline-offset:2px;}
+  a.item h3{font-size:15.5px;margin:0 0 5px;color:var(--navy);}
+  a.item p{margin:0;font-size:13.3px;color:var(--ink-2);line-height:1.65;}
+  a.item .tag{font-family:"Cascadia Mono",Consolas,monospace;font-size:11px;
+              color:var(--faint);font-weight:400;margin-left:8px;}
   .empty{margin-top:16px;background:var(--paper);border:1px dashed var(--line-2);
          border-radius:12px;padding:18px 22px;color:var(--muted);font-size:13.5px;text-align:center;}
   code{font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
@@ -78,7 +88,17 @@
     </ul>
   </div>
 
-  <div class="empty">内容整理中，尚未添加正文。后续会按上面的清单逐篇补上。</div>
+  <div class="panel">
+    <h2>已收录的笔记</h2>
+    <div class="list">
+      <a class="item" href="git-basics.html">
+        <h3>Git 入门笔记<span class="tag">git-basics.html</span></h3>
+        <p>从「三棵树」模型到 GitHub Pages：提交与历史、分支与合并、冲突解决、远程推送、gh CLI 与静态站点部署。附真实报错清单与命令速查表。</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="empty">其余条目整理中，后续会按上面的清单继续补充。</div>
 
   <footer>托管于 GitHub Pages · 仓库 <code>Azure-Wind/notes</code></footer>
 
