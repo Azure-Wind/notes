@@ -3,102 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>讲座总索引</title>
+<meta name="description" content="个人学习笔记库：讲座笔记与入门指南两大集合。">
+<title>笔记库</title>
 <style>
   :root{
     --ink:#141a22;--ink-2:#3d4753;--muted:#69737f;--faint:#8d96a1;
     --line:#dfe4ea;--line-2:#c8d0d9;--bg:#eef0f3;--paper:#fff;
-    --navy:#1f4e79;--navy-pale:#eef3f9;
+    --navy:#1f4e79;--navy-pale:#eef3f9;--teal:#176f68;--teal-pale:#eaf4f2;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
        font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
        font-size:15px;line-height:1.7;}
   .page{max-width:980px;margin:0 auto;padding:0 20px 72px;}
+
   header.top{background:var(--paper);border:1px solid var(--line);border-radius:12px;
-             padding:26px 30px;margin:26px 0 18px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
-  h1{font-size:26px;margin:0 0 8px;letter-spacing:-.01em;}
+             padding:30px 32px;margin:26px 0 18px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
+  h1{font-size:28px;margin:0 0 8px;letter-spacing:-.01em;}
   .sub{color:var(--faint);font-size:13.5px;margin:0;}
   .sub b{color:var(--ink-2);}
-  .lec{background:var(--paper);border:1px solid var(--line);border-radius:12px;
-       padding:22px 26px 12px;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
-  .head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;}
-  .date{font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;color:var(--navy);
-        background:var(--navy-pale);border-radius:5px;padding:2px 8px;letter-spacing:.03em;}
-  h2{font-size:18.5px;margin:2px 0 0;flex:1 1 100%;line-height:1.4;}
-  .chips{display:flex;gap:6px;flex-wrap:wrap;}
-  .chip{font-size:11.5px;color:var(--muted);border:1px solid var(--line-2);
-        border-radius:999px;padding:1px 9px;background:#fbfcfd;}
-  .chip.muted{color:var(--faint);}
-  .lede{color:var(--ink-2);font-size:13.8px;margin:12px 0 0;}
-  table.files{width:100%;border-collapse:collapse;margin:14px 0 8px;font-size:14px;}
-  th,td{text-align:left;vertical-align:top;padding:9px 10px;border-bottom:1px solid var(--line);}
-  thead th{background:#f7f8fa;font-size:11.8px;letter-spacing:.06em;color:var(--muted);
-           text-transform:uppercase;border-bottom:1px solid var(--line-2);}
-  tbody tr:last-child td{border-bottom:none;}
-  .kind{display:inline-block;font-size:11.5px;border-radius:4px;padding:1px 7px;white-space:nowrap;
-        border:1px solid var(--line-2);color:var(--ink-2);background:#fafbfc;}
-  .k-正式版{color:#1f4e79;background:#eef3f9;border-color:#c9dcee;font-weight:600;}
-  .k-图片版{color:#1f7a5a;background:#eaf6f1;border-color:#cbe7db;}
-  .k-附件{color:#7a5a1f;background:#fdf6e7;border-color:#eadfc4;}
-  .f a{color:var(--navy);text-decoration:none;font-weight:600;}
-  .f a:hover{text-decoration:underline;}
-  .desc{color:var(--ink-2);font-weight:400;}
-  .path{display:block;font-family:"Cascadia Mono",Consolas,monospace;font-size:11.6px;
-        color:var(--faint);margin-top:2px;word-break:break-all;}
-  .m{white-space:nowrap;font-size:12.5px;color:var(--muted);text-align:right;}
-  .ext{display:inline-block;margin-left:8px;font-family:"Cascadia Mono",Consolas,monospace;
-       font-size:10.5px;color:var(--faint);border:1px solid var(--line);border-radius:3px;padding:0 4px;}
-  .empty{background:var(--paper);border:1px dashed var(--line-2);border-radius:12px;
-         padding:34px;text-align:center;color:var(--faint);}
-  footer{text-align:center;color:var(--faint);font-size:12.5px;padding:24px 0 0;line-height:1.9;}
+
+  .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+  @media (max-width:720px){.cols{grid-template-columns:1fr}}
+
+  a.card{display:block;background:var(--paper);border:1px solid var(--line);border-radius:12px;
+         padding:24px 26px;box-shadow:0 1px 2px rgba(20,25,40,.05);
+         text-decoration:none;color:inherit;transition:border-color .15s,box-shadow .15s,transform .15s;}
+  a.card:hover{border-color:var(--navy);box-shadow:0 3px 10px rgba(31,78,121,.10);transform:translateY(-1px);}
+  a.card:focus-visible{outline:2px solid var(--navy);outline-offset:2px;}
+
+  .kicker{font-family:"Cascadia Mono",Consolas,monospace;font-size:11.5px;letter-spacing:.08em;
+          text-transform:uppercase;color:var(--navy);background:var(--navy-pale);
+          border-radius:5px;padding:2px 8px;display:inline-block;}
+  .kicker.t{color:var(--teal);background:var(--teal-pale);}
+  h2{font-size:19px;margin:12px 0 6px;line-height:1.4;}
+  .en{color:var(--faint);font-size:13px;font-weight:400;margin-left:6px;}
+  p.desc{color:var(--ink-2);font-size:13.8px;margin:8px 0 0;}
+  .meta{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);
+        font-size:12.5px;color:var(--faint);display:flex;flex-wrap:wrap;gap:4px 14px;}
+  .meta b{color:var(--ink-2);}
+
+  .note{background:var(--paper);border:1px dashed var(--line-2);border-radius:12px;
+        padding:16px 20px;margin-top:16px;font-size:13px;color:var(--muted);}
+  .note code{font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;
+             background:#f4f6f8;border-radius:3px;padding:1px 5px;}
+
+  footer{margin-top:26px;color:var(--faint);font-size:12.5px;line-height:1.8;text-align:center;}
+
   @media print{
-    @page{size:A4;margin:14mm 13mm;}
-    body{background:#fff;font-size:10.2pt;line-height:1.5;}
-    .page{max-width:none;padding:0;}
-    header.top,.lec{border:none;border-radius:0;box-shadow:none;padding:0;margin:0 0 8mm;}
-    header.top{border-bottom:2px solid #000;padding-bottom:3mm;margin-bottom:6mm;}
-    h1{font-size:17pt;} h2{font-size:12.5pt;}
-    .lede{font-size:8.8pt;}
-    table.files{font-size:8.8pt;}
-    .path{font-size:7.8pt;}
-    .lec{break-inside:avoid;}
-    th{background:#f2f2f2;}
-    a{color:#000;text-decoration:none;}
-  }
-  @media (max-width:720px){
-    .lec{padding:18px 16px 10px;}
-    header.top{padding:20px 18px;}
-    h1{font-size:21px;}
-    .m{display:none;} .files thead th:last-child{display:none;}
+    @page{margin:16mm}
+    body{background:#fff;font-size:11pt}
+    .page{max-width:none;padding:0}
+    a.card{box-shadow:none;break-inside:avoid}
+    .note,footer{display:none}
   }
 </style>
 </head>
 <body>
 <div class="page">
-<header class="top">
-  <h1>讲座总索引</h1>
-  <p class="sub">共 <b>1</b> 场讲座 · 更新于 2026-10-17 19:39</p>
-</header>
-    <article class="lec">
-      <div class="head">
-        <div class="date">2026-10-16</div>
-        <div class="chips"><span class="chip">正文 1</span><span class="chip">附件 1</span></div>
-        <h2>AI Agents: From Chat to Action　·　AI智能体：从对话到行动</h2>
+
+  <header class="top">
+    <h1>笔记库</h1>
+    <p class="sub">个人学习笔记 · 按主题分成若干集合，每个集合是一个独立的小站</p>
+  </header>
+
+  <div class="cols">
+
+    <a class="card" href="lectures/">
+      <span class="kicker">Lectures</span>
+      <h2>讲座笔记<span class="en">听课与讲座整理</span></h2>
+      <p class="desc">按场次整理的听课笔记，含正式版笔记、结构图与可运行附件。带「总索引」页，便于按日期查找。</p>
+      <div class="meta">
+        <span><b>1</b> 场讲座</span>
+        <span>最近更新 2026-10-17</span>
       </div>
-      <p class="lede">2026 年 10 月 16 日北京大学知存讲座《AI 智能体：从对话到行动》正式版学习笔记：token 生成与解码、后训练与推理模型、Agent 边界与工具调用、环境合成与 Cowork-Gym、RL 与蒸馏与模型融合，附自测、术语与待核对清单。</p>
-      <table class="files">
-        <thead><tr><th>角色</th><th>文件</th><th>大小</th></tr></thead>
-        <tbody>
-          <tr><td><span class="kind k-正式版">正式版</span></td><td class="f"><a href="AI-Agents-From-Chat-to-Action/AI-Agents-From-Chat-to-Action.html">从对话到行动 · 知存讲座正式版笔记</a><span class="path">AI-Agents-From-Chat-to-Action/AI-Agents-From-Chat-to-Action.html</span></td><td class="m">146 KB<span class="ext">HTML</span></td></tr>
-          <tr><td><span class="kind k-附件">附件</span></td><td class="f"><a href="AI-Agents-From-Chat-to-Action/附件/logits_toy_model.py">logits_toy_model.py</a> <span class="desc">— 可直接运行的脚本</span><span class="path">AI-Agents-From-Chat-to-Action/附件/logits_toy_model.py</span></td><td class="m">9 KB<span class="ext">PY</span></td></tr>
-        </tbody>
-      </table>
-    </article>
-<footer>
-  本页由 <code>_脚本\生成索引.py</code> 生成，不要手改 · 新增或改动资料后重新运行即可<br>
-  点击任意文件即在浏览器打开；「打印 → 另存为 PDF」可得到 A4 索引
-</footer>
+    </a>
+
+    <a class="card" href="getting-started/">
+      <span class="kicker t">Getting Started</span>
+      <h2>入门指南<span class="en">基础与工具</span></h2>
+      <p class="desc">计算机使用与开发工具的基础材料：环境配置、命令行、版本控制等入门内容。</p>
+      <div class="meta">
+        <span><b>整理中</b></span>
+        <span>内容陆续补充</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="note">
+    本页是手写的总入口（不随内容自动更新）；各集合内部的索引页由各自的生成脚本产出，例如
+    <code>lectures/_脚本/生成索引.py</code> 会重建 <code>lectures/index.html</code>。
+    新增一个主题集合时：建同名目录 + 一个 <code>index.html</code>，然后回本页加一张卡片。
+  </div>
+
+  <footer>
+    托管于 GitHub Pages · 仓库 <code>Azure-Wind/notes</code>
+  </footer>
+
 </div>
 </body>
 </html>

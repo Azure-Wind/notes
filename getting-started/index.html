@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="入门指南：计算机使用与开发工具的基础材料。">
+<title>入门指南 · 笔记库</title>
+<style>
+  :root{
+    --ink:#141a22;--ink-2:#3d4753;--muted:#69737f;--faint:#8d96a1;
+    --line:#dfe4ea;--line-2:#c8d0d9;--bg:#eef0f3;--paper:#fff;
+    --navy:#1f4e79;--navy-pale:#eef3f9;--teal:#176f68;--teal-pale:#eaf4f2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+       font-size:15px;line-height:1.7;}
+  .page{max-width:980px;margin:0 auto;padding:0 20px 72px;}
+
+  .crumbs{font-size:13px;color:var(--faint);margin:22px 0 10px;}
+  .crumbs a{color:var(--navy);text-decoration:none;}
+  .crumbs a:hover{text-decoration:underline;}
+
+  header.top{background:var(--paper);border:1px solid var(--line);border-radius:12px;
+             padding:28px 30px;margin:0 0 18px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
+  .kicker{font-family:"Cascadia Mono",Consolas,monospace;font-size:11.5px;letter-spacing:.08em;
+          text-transform:uppercase;color:var(--teal);background:var(--teal-pale);
+          border-radius:5px;padding:2px 8px;display:inline-block;}
+  h1{font-size:26px;margin:12px 0 8px;letter-spacing:-.01em;}
+  h1 .en{color:var(--faint);font-size:15px;font-weight:400;margin-left:8px;}
+  .sub{color:var(--faint);font-size:13.5px;margin:0;}
+
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;
+         padding:24px 28px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
+  h2{font-size:17px;margin:0 0 10px;}
+  p{color:var(--ink-2);font-size:14.2px;margin:0 0 12px;}
+  p:last-child{margin-bottom:0;}
+
+  ul.plan{list-style:none;padding:0;margin:14px 0 0;}
+  ul.plan li{border-top:1px solid var(--line);padding:10px 0;font-size:14px;color:var(--ink-2);}
+  ul.plan li:first-child{border-top:none;}
+  ul.plan b{color:var(--ink);}
+
+  .empty{margin-top:16px;background:var(--paper);border:1px dashed var(--line-2);
+         border-radius:12px;padding:18px 22px;color:var(--muted);font-size:13.5px;text-align:center;}
+  code{font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+       background:#f4f6f8;border-radius:3px;padding:1px 5px;}
+
+  footer{margin-top:26px;color:var(--faint);font-size:12.5px;text-align:center;}
+
+  @media print{
+    @page{margin:16mm}
+    body{background:#fff;font-size:11pt}
+    .page{max-width:none;padding:0}
+    .crumbs,.empty,footer{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="crumbs"><a href="../">笔记库</a> › 入门指南</div>
+
+  <header class="top">
+    <span class="kicker">Getting Started</span>
+    <h1>入门指南<span class="en">基础与工具</span></h1>
+    <p class="sub">计算机使用与开发工具的基础材料</p>
+  </header>
+
+  <div class="panel">
+    <h2>这个集合准备放什么</h2>
+    <p>面向"从零把环境搭起来"的材料——不假定读者已经熟悉命令行、包管理器或版本控制。</p>
+    <ul class="plan">
+      <li><b>环境配置</b> —— 编辑器、终端、包管理器（winget / Homebrew / apt）</li>
+      <li><b>命令行入门</b> —— 目录切换、管道、重定向、常用命令对照</li>
+      <li><b>版本控制</b> —— Git 与 GitHub 的实际操作流程</li>
+      <li><b>开发工具链</b> —— 编译器、构建脚本、调试器的基础用法</li>
+    </ul>
+  </div>
+
+  <div class="empty">内容整理中，尚未添加正文。后续会按上面的清单逐篇补上。</div>
+
+  <footer>托管于 GitHub Pages · 仓库 <code>Azure-Wind/notes</code></footer>
+
+</div>
+</body>
+</html>
