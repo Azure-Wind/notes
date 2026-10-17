@@ -350,7 +350,7 @@ HTML_TMPL = """<!DOCTYPE html>
 <div class="page">
 <header class="top">
   <h1>讲座总索引</h1>
-  <p class="sub">共 <b>__N_LEC__</b> 场讲座 · <b>__N_IMG__</b> 张图片版页面 · 更新于 __NOW__</p>
+  <p class="sub">共 <b>__N_LEC__</b> 场讲座__IMG_PART__ · 更新于 __NOW__</p>
 </header>
 __BODY__
 <footer>
@@ -384,10 +384,13 @@ def main():
     body = "\n\n".join(blocks[i] for i in order) if blocks else \
         '    <div class="empty">还没有讲座资料。新建一个讲座文件夹（建议用英文标题命名）后重新运行本脚本。</div>'
 
+    # 没有图片版时不显示「0 张图片版页面」，避免首页出现无意义的信息
+    img_part = f" · <b>{total_imgs}</b> 张图片版页面" if total_imgs else ""
+
     page = (HTML_TMPL
             .replace("__CSS__", CSS)
             .replace("__N_LEC__", str(len(blocks)))
-            .replace("__N_IMG__", str(total_imgs))
+            .replace("__IMG_PART__", img_part)
             .replace("__NOW__", datetime.now().strftime("%Y-%m-%d %H:%M"))
             .replace("__BODY__", body))
 
