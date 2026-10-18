@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Mellum 2 技术讲座笔记：预训练架构、MTP、MLA 选型、后训练、GRPO、训练推理差异、评测与模型发布。"><title>Mellum 2：Cooking an Agentic Code Model · 讲座笔记</title><style>
+  :root{
+    --ink:#141a22; --ink-2:#3d4753; --muted:#69737f; --faint:#8d96a1;
+    --line:#dfe4ea; --line-2:#c8d0d9; --bg:#eef0f3; --paper:#ffffff;
+    --navy:#1f4e79; --navy-2:#2f6395; --navy-pale:#eef3f9;
+    --teal:#176f68; --teal-pale:#eaf4f2;
+    --amber:#9a5b18; --amber-pale:#fbf2e6;
+    --green:#2c6e49; --green-pale:#eef6f1;
+    --red:#9b2c2c; --red-pale:#fbeeed;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:20px}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    font-size:16px;line-height:1.78;letter-spacing:.005em;
+  }
+  a{color:var(--navy);text-underline-offset:3px;text-decoration-thickness:1px}
+  a:hover{color:var(--navy-2)}
+  code{
+    font-family:"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+    font-size:.87em;background:#f2f4f7;border:1px solid var(--line);
+    border-radius:4px;padding:1px 5px;color:#22303d;
+  }
+  pre.code code{background:none;border:0;padding:0;font-size:1em;color:inherit}
+  .page{max-width:1180px;margin:0 auto;padding:26px 28px 60px}
+
+  /* ============ 封面 ============ */
+  .cover{
+    position:relative;overflow:hidden;border-radius:18px;color:#f4f7fa;
+    background:linear-gradient(140deg,#132435 0%,#1b3c5c 55%,#1f4e79 100%);
+    padding:44px 46px 38px;box-shadow:0 18px 40px rgba(19,36,53,.16);
+  }
+  .cover::after{
+    content:"";position:absolute;right:-120px;top:-150px;width:420px;height:420px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 0 0 32px rgba(255,255,255,.03),0 0 0 72px rgba(255,255,255,.02);
+  }
+  .cover-in{position:relative;z-index:1}
+  .eyebrow{
+    font-size:11.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
+    color:rgba(255,255,255,.7);margin:0 0 16px;
+  }
+  .cover h1{
+    font-size:clamp(30px,4.2vw,46px);line-height:1.16;letter-spacing:-.02em;
+    margin:0 0 8px;font-weight:800;max-width:760px;
+  }
+  .cover .en{
+    display:block;font-size:15px;font-weight:400;letter-spacing:.02em;
+    color:rgba(244,247,250,.62);margin-top:10px;
+  }
+  .cover .sub{
+    max-width:700px;margin:16px 0 0;color:rgba(244,247,250,.88);
+    font-size:16px;line-height:1.75;
+  }
+  .meta-grid{
+    position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:1px;margin:30px 0 0;background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.14);border-radius:10px;overflow:hidden;
+  }
+  .meta-item{background:#1a3854;padding:13px 16px}
+  .meta-item dt{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);margin:0 0 3px}
+  .meta-item dd{margin:0;font-size:13.5px;color:#eaf0f6;line-height:1.55}
+  .ver{
+    position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    margin-top:22px;font-size:12.5px;color:rgba(244,247,250,.72);
+  }
+  .ver .tag{
+    background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24);
+    border-radius:999px;padding:3px 11px;font-size:11.5px;letter-spacing:.04em;color:#fff;
+  }
+
+  /* ============ 布局 ============ */
+  .layout{display:grid;grid-template-columns:238px minmax(0,1fr);gap:26px;align-items:start;margin-top:24px}
+  aside.toc{
+    position:sticky;top:16px;background:var(--paper);border:1px solid var(--line);
+    border-radius:var(--radius);padding:18px 16px;font-size:13px;
+    max-height:calc(100vh - 32px);overflow-y:auto;overscroll-behavior:contain;
+    scrollbar-width:thin;scrollbar-color:#c9d3dd transparent;
+  }
+  .toc-title{
+    margin:0 0 10px;font-size:11px;font-weight:800;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--faint);padding-left:6px;
+  }
+  aside.toc ol{list-style:none;margin:0;padding:0}
+  aside.toc li{margin:1px 0}
+  aside.toc a{
+    display:flex;gap:9px;align-items:baseline;color:var(--ink-2);text-decoration:none;
+    padding:6px 8px;border-radius:7px;line-height:1.45;
+  }
+  aside.toc a:hover,aside.toc a:focus{background:var(--navy-pale);color:var(--navy);outline:none}
+  aside.toc .n{
+    flex:none;width:1.9em;font-family:"Cascadia Mono",Consolas,monospace;
+    font-size:11px;color:var(--faint);letter-spacing:.02em;
+  }
+  aside.toc .part{
+    margin:14px 0 5px;padding:0 8px;font-size:10.5px;font-weight:800;
+    letter-spacing:.14em;color:var(--faint);text-transform:uppercase;
+  }
+  aside.toc .part:first-of-type{margin-top:2px}
+  main{min-width:0}
+
+  /* ============ 章节 ============ */
+  .chapter{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 36px 34px;margin-bottom:20px;box-shadow:0 1px 2px rgba(20,26,34,.04);
+  }
+  .ch-head{border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:20px}
+  .ch-no{
+    display:inline-block;font-family:"Cascadia Mono",Consolas,monospace;
+    font-size:11.5px;font-weight:700;letter-spacing:.14em;color:var(--navy);
+    background:var(--navy-pale);border-radius:5px;padding:2px 8px;margin-bottom:9px;
+  }
+  .chapter h2{
+    font-size:clamp(21px,2.5vw,26px);line-height:1.34;letter-spacing:-.015em;
+    margin:0;font-weight:800;
+  }
+  .ch-lead{color:var(--ink-2);font-size:14.5px;margin:9px 0 0;line-height:1.72}
+  .chapter h3{
+    font-size:17px;margin:30px 0 10px;padding-left:11px;border-left:3px solid var(--navy-2);
+    line-height:1.5;letter-spacing:-.005em;
+  }
+  .chapter h3:first-of-type{margin-top:6px}
+  .chapter h4{font-size:14.5px;margin:20px 0 6px;color:var(--ink)}
+  p{margin:10px 0}
+  .chapter ul,.chapter ol{padding-left:1.35em;margin:10px 0}
+  .chapter li{margin:5px 0}
+  .chapter li>ul,.chapter li>ol{margin:4px 0}
+
+  /* ============ 组件 ============ */
+  .keybox{
+    background:var(--navy-pale);border-left:4px solid var(--navy);border-radius:0 9px 9px 0;
+    padding:14px 18px;margin:16px 0;font-size:14.5px;color:#1c3247;
+  }
+  .keybox strong{color:var(--navy)}
+  .warnbox{
+    background:var(--amber-pale);border-left:4px solid var(--amber);border-radius:0 9px 9px 0;
+    padding:14px 18px;margin:16px 0;font-size:14px;color:#5c3f1f;
+  }
+  .warnbox strong{color:var(--amber)}
+  .notebox{
+    background:#f6f7f8;border-left:4px solid var(--line-2);border-radius:0 9px 9px 0;
+    padding:13px 17px;margin:16px 0;font-size:13.8px;color:var(--ink-2);
+  }
+  .check{
+    background:var(--green-pale);border-left:4px solid var(--green);border-radius:0 9px 9px 0;
+    padding:14px 18px;margin:16px 0;font-size:14.2px;color:#234a37;
+  }
+  .check strong{color:var(--green)}
+  .quote{
+    position:relative;background:#fbfbfa;border:1px solid var(--line);border-radius:10px;
+    padding:16px 20px 15px 24px;margin:16px 0;color:#2c3644;font-size:14.6px;
+  }
+  .quote::before{
+    content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;
+    background:linear-gradient(var(--navy-2),var(--teal));border-radius:3px;
+  }
+  .quote .who{
+    display:block;font-size:11px;font-weight:800;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--faint);margin-bottom:6px;
+  }
+  .takeaways{
+    background:#fafbfc;border:1px solid var(--line);border-radius:10px;
+    padding:14px 18px 12px;margin:18px 0;
+  }
+  .takeaways .tt{
+    font-size:11px;font-weight:800;letter-spacing:.14em;color:var(--navy);
+    text-transform:uppercase;margin:0 0 7px;
+  }
+  .takeaways ul{margin:0;padding-left:1.2em}
+  .takeaways li{font-size:14px;margin:5px 0;color:var(--ink-2)}
+  .takeaways li b{color:var(--ink)}
+
+  /* 证据等级 */
+  .ev{
+    display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.06em;
+    border-radius:4px;padding:0 5px;margin-right:5px;vertical-align:1px;
+    border:1px solid transparent;white-space:nowrap;
+  }
+  .ev.talk{background:#e8eff8;color:#22456b;border-color:#c9d8ea}
+  .ev.std{background:#e9f3ef;color:#1f5c48;border-color:#c9e0d5}
+  .ev.inf{background:#f2eef7;color:#52407a;border-color:#ddd2ec}
+  .ev.tbd{background:#fbeeed;color:#8c302c;border-color:#ecd0ce}
+
+  /* 流程 */
+  .flow{display:grid;grid-template-columns:1fr 26px 1fr 26px 1fr;align-items:stretch;gap:4px;margin:18px 0}
+  .flow.four{grid-template-columns:1fr 22px 1fr 22px 1fr 22px 1fr}
+  .flow-step{
+    background:#f6f8fb;border:1px solid #dde4ec;border-radius:9px;
+    padding:12px 10px;text-align:center;
+  }
+  .flow-step strong{display:block;font-size:13.5px;color:var(--navy);margin-bottom:3px}
+  .flow-step small{display:block;font-size:11.5px;color:var(--muted);line-height:1.5}
+  .arrow{display:grid;place-items:center;color:var(--teal);font-size:19px;font-weight:700}
+
+  /* 卡片 */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:11px;margin:18px 0}
+  .card{
+    background:#fcfcfd;border:1px solid var(--line);border-radius:10px;padding:14px 16px;
+  }
+  .card .ct{font-size:13.5px;font-weight:800;color:var(--ink);margin:0 0 5px}
+  .card .cb{font-size:13.2px;color:var(--ink-2);margin:0;line-height:1.68}
+  .card .big{display:block;font-size:23px;font-weight:800;color:var(--navy);line-height:1.2;margin-bottom:3px}
+  .card .kicker{
+    display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.08em;
+    color:var(--teal);background:var(--teal-pale);border-radius:4px;padding:1px 6px;margin-bottom:6px;
+  }
+
+  /* 公式 */
+  .formula{
+    background:#f7f9fb;border:1px solid #dbe3eb;border-radius:10px;
+    padding:15px 18px;margin:16px 0;overflow-x:auto;
+  }
+  .frow{display:flex;align-items:center;gap:8px 18px;margin:11px 0;flex-wrap:wrap}
+  .frow:first-child{margin-top:2px}
+  .frow:last-child{margin-bottom:2px}
+  .flabel{flex:none;min-width:7em;font-size:12px;color:var(--faint);letter-spacing:.02em}
+  .fnote{font-size:12.5px;color:var(--faint)}
+  .math{
+    font-family:"Cambria Math","Latin Modern Math",Cambria,Georgia,"Times New Roman",serif;
+    font-size:1.13em;font-style:normal;line-height:1.3;white-space:nowrap;
+  }
+  .math sub,.math sup{font-size:.66em;line-height:0;font-style:normal}
+  .frac{display:inline-block;vertical-align:middle;text-align:center;margin:0 .2em;font-style:normal}
+  .frac>.num{display:block;padding:0 .45em .1em}
+  .frac>.den{display:block;padding:.1em .45em 0;border-top:1.3px solid var(--ink-2)}
+  pre.code{
+    background:#f7f9fb;border:1px solid #dbe3eb;border-radius:10px;padding:14px 17px;margin:16px 0;
+    overflow-x:auto;font-family:"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+    font-size:12.6px;line-height:1.72;color:#23303d;
+  }
+  pre.code b{color:var(--navy)}
+  pre.code i{color:var(--amber);font-style:normal}
+
+  /* 表格 */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;margin:16px 0;background:#fff}
+  table{width:100%;border-collapse:collapse;font-size:13.6px;min-width:520px}
+  th,td{text-align:left;vertical-align:top;padding:10px 13px;border-bottom:1px solid var(--line)}
+  thead th{
+    background:#f3f5f8;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-2);border-bottom:1px solid var(--line-2);white-space:nowrap;
+  }
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:#fafbfc}
+  td b{color:var(--ink)}
+  .mono td:nth-child(2),.mono td:nth-child(1){
+    font-family:"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;font-size:12.4px;
+  }
+  table.compact td,table.compact th{padding:8px 11px}
+  td.num{font-family:"Cascadia Mono",Consolas,monospace;font-size:12.4px;white-space:nowrap}
+
+  /* 标签 */
+  .pill{
+    display:inline-block;font-size:11px;font-weight:700;border-radius:999px;
+    padding:2px 9px;margin:0 4px 4px 0;background:#eef1f4;color:#4b5866;
+  }
+  .pill.blue{background:var(--navy-pale);color:var(--navy)}
+  .pill.teal{background:var(--teal-pale);color:var(--teal)}
+  .pill.amber{background:var(--amber-pale);color:var(--amber)}
+
+  /* 折叠问答 */
+  details.qa{border:1px solid var(--line);border-radius:9px;margin:9px 0;background:#fcfcfd;overflow:hidden}
+  details.qa summary{
+    cursor:pointer;padding:11px 15px;font-size:14.2px;font-weight:650;
+    list-style:none;display:flex;gap:10px;align-items:flex-start;
+  }
+  details.qa summary::-webkit-details-marker{display:none}
+  details.qa summary::before{
+    content:"Q";flex:none;width:20px;height:20px;border-radius:5px;background:var(--navy-pale);
+    color:var(--navy);font-size:11px;font-weight:800;display:flex;align-items:center;
+    justify-content:center;margin-top:3px;
+  }
+  details.qa[open] summary{border-bottom:1px solid var(--line)}
+  details.qa .ans{
+    padding:12px 15px 14px 45px;font-size:13.8px;color:var(--ink-2);background:#fff;line-height:1.72;
+  }
+  details.qa .ans b{color:var(--ink)}
+
+  /* 参考文献 */
+  .refs ul{list-style:none;padding-left:0;margin:8px 0}
+  .refs li{padding:9px 0;border-bottom:1px dashed var(--line);font-size:13.8px}
+  .refs li:last-child{border-bottom:0}
+  .refs .rt{font-weight:650;color:var(--ink)}
+  .refs .ru a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--line-2)}
+  .refs .ru a:hover{color:var(--navy);border-bottom-color:var(--navy)}
+  .refs .ru{
+    display:block;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.2px;
+    color:var(--faint);word-break:break-all;margin-top:2px;
+  }
+  .refs h4{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin:18px 0 4px}
+
+  /* 页脚 */
+  .doc-footer{
+    margin-top:8px;padding:24px 30px;background:var(--paper);border:1px solid var(--line);
+    border-radius:var(--radius);color:var(--muted);font-size:12.8px;line-height:1.75;
+  }
+  .doc-footer strong{color:var(--ink-2)}
+  .doc-footer .sign{margin-top:10px;color:var(--faint);font-size:12px}
+
+  /* ============ 响应式 ============ */
+  @media (max-width:980px){
+    .page{padding:14px 20px 44px}
+    .cover{padding:30px 24px 26px;border-radius:14px}
+    .crumbs{padding:12px 20px 0}
+    .meta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .layout{grid-template-columns:1fr;gap:16px}
+    aside.toc{position:static;max-height:none;overflow:visible}
+    aside.toc ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 8px}
+    .chapter{padding:22px 20px 26px}
+    .flow,.flow.four{grid-template-columns:1fr}
+    .arrow{transform:rotate(90deg);height:18px}
+  }
+  @media (max-width:560px){
+    .meta-grid{grid-template-columns:1fr}
+    aside.toc ol{grid-template-columns:1fr}
+  }
+
+  /* ============ 面包屑 ============ */
+  .crumbs{max-width:1180px;margin:0 auto;padding:20px 28px 0;font-size:13px;color:var(--faint);letter-spacing:.01em}
+  .crumbs a{color:var(--navy);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s}
+  .crumbs a:hover{border-bottom-color:var(--navy)}
+  @media print{.crumbs{display:none !important}}
+
+  /* ============ 代码复制 ============ */
+  .code-wrap{position:relative;margin:16px 0}
+  .code-wrap>pre.code{margin:0}
+  .copy-btn{
+    position:absolute;top:8px;right:8px;z-index:2;
+    border:1px solid #cfd9e3;background:rgba(255,255,255,.94);color:#41505f;
+    border-radius:6px;padding:2px 9px;font-family:inherit;font-size:11.5px;line-height:1.7;
+    cursor:pointer;opacity:.6;transition:opacity .15s,background .15s,border-color .15s,color .15s;
+  }
+  .code-wrap:hover .copy-btn,.copy-btn:focus-visible{opacity:1}
+  .copy-btn:hover{background:#fff;border-color:var(--navy);color:var(--navy)}
+  .copy-btn.ok{background:#eaf4ee;border-color:#9cc3ab;color:#1f5a3d;opacity:1}
+  .copy-btn.fail{background:#fbebea;border-color:#d5a3a0;color:#8d2f2f;opacity:1}
+  @media (hover:none){.copy-btn{opacity:1}}
+  @media print{.copy-btn{display:none !important}}
+
+  /* ============ 打印 ============ */
+  @media print{
+    @page{size:A4;margin:15mm 14mm}
+    body{background:#fff;font-size:10.2pt;line-height:1.62}
+    .page{max-width:none;padding:0}
+    .cover{
+      background:#fff !important;color:#000;border:0;border-bottom:2.4pt solid #000;
+      border-radius:0;box-shadow:none;padding:0 0 6mm;
+    }
+    .cover::after{display:none}
+    .cover h1{font-size:21pt}
+    .cover .en{color:#444}
+    .cover .sub{color:#222}
+    .meta-grid{background:none;border:0;gap:0 8mm;grid-template-columns:repeat(2,1fr)}
+    .meta-item{background:none;padding:0 0 3mm}
+    .meta-item dt{color:#555}
+    .meta-item dd{color:#000}
+    .ver{color:#444}
+    .ver .tag{background:none;border:1px solid #999;color:#222}
+    .layout{display:block}
+    aside.toc{
+      position:static;border:0;border-bottom:1px solid #bbb;border-radius:0;
+      padding:0 0 5mm;margin:0 0 7mm;break-after:page;
+      max-height:none;overflow:visible;
+    }
+    aside.toc .toc-title{color:#333}
+    aside.toc ol{display:block;columns:2;column-gap:8mm}
+    aside.toc li{break-inside:avoid}
+    aside.toc a{color:#000;padding:1.2mm 0}
+    aside.toc .n{color:#666}
+    .chapter{
+      border:0;border-top:1px solid #ccc;border-radius:0;box-shadow:none;
+      padding:5mm 0 0;margin:9mm 0 11mm;break-before:auto;
+    }
+    .ch-head{break-inside:avoid;break-after:avoid}
+    .chapter:first-of-type{break-before:auto}
+    .ch-head{border-bottom:1.2pt solid #000;padding-bottom:3mm;margin-bottom:5mm}
+    .ch-no{background:none;border:1px solid #999;color:#000}
+    .chapter h2{font-size:15pt}
+    .chapter h3{font-size:11.5pt;border-left:3pt solid #333;break-after:avoid}
+    h4{break-after:avoid}
+    p,li{orphans:2;widows:2}
+    .keybox,.warnbox,.notebox,.check,.quote,.takeaways,.card,.formula,details.qa{
+      break-inside:avoid;background:#fafafa !important;border:1px solid #bbb;
+    }
+    .keybox,.warnbox,.notebox,.check,.quote{border-left-width:3pt}
+    .ev{border:1px solid #888;background:none !important;color:#222 !important}
+    table{font-size:9pt;min-width:0}
+    thead{display:table-header-group}
+    tr{break-inside:avoid}
+    .flow-step{background:#fafafa;border:1px solid #bbb}
+    details.qa .ans{display:block !important}
+    details.qa summary::before{background:#ddd;color:#000}
+    a{color:#000;text-decoration:none}
+    .tbl-wrap{break-inside:auto;overflow:visible;background:#fafafa !important;border:1px solid #bbb}
+    pre.code{overflow:visible;white-space:pre-wrap;word-break:break-word}
+    .formula{overflow:visible}
+    .doc-footer{border:0;border-top:1pt solid #000;border-radius:0;padding:4mm 0 0;break-before:auto}
+    .flow{grid-template-columns:1fr 24px 1fr 24px 1fr}
+    .flow.four{grid-template-columns:1fr 20px 1fr 20px 1fr 20px 1fr}
+    .arrow{transform:none;height:auto}
+    .cards{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+  }
+
+/* Mellum lecture note additions */
+.confession{margin:18px 0 0;padding:13px 16px;border:1px solid rgba(255,255,255,.25);border-left:4px solid #e7b66d;background:rgba(255,255,255,.09);border-radius:8px;color:#fff;max-width:850px}
+.confession strong{color:#ffe0a7}
+.source-note{font-size:12.5px;color:var(--muted)}
+.chapter .small{font-size:13.5px;color:var(--muted)}
+.chapter .tagline{color:var(--navy);font-weight:700}
+/* Responsive TOC behavior is defined once above to avoid overriding its independent-scroll rules. */
+
+.crumbs{max-width:1180px;margin-left:auto!important;margin-right:auto!important}
+.copy-btn{float:right;border:1px solid var(--line-2);background:#fff;border-radius:6px;padding:4px 9px;font-size:12px;cursor:pointer;color:var(--ink-2)}
+@media(max-width:980px){.page{padding:18px 16px 40px}.meta-grid{grid-template-columns:1fr}.cover{padding:32px 25px}.chapter{padding:24px 22px}}
+@media print{.crumbs,aside.toc,.copy-btn{display:none!important}.page{max-width:none;padding:0}.cover{box-shadow:none;print-color-adjust:exact;-webkit-print-color-adjust:exact}.layout{display:block}.chapter{box-shadow:none;break-inside:auto}.meta-grid,.keybox,.warnbox,.notebox,.card{break-inside:avoid}a{color:inherit;text-decoration:none}}
+</style></head><body>
+<div class="crumbs"><a href="../index.html">笔记库</a> › <a href="index.html">lectures</a> › Mellum 2：Cooking an Agentic Code Model</div>
+<div class="page">
+  <header class="cover">
+    <div class="cover-in">
+      <p class="eyebrow">LECTURES · MODEL TRAINING</p>
+      <h1>Mellum 2：如何训练一个能行动的代码模型<span class="en">Mellum 2: Cooking an Agentic Code Model</span></h1>
+      <p class="sub">从代码补全模型走向代码 Agent：在单卡推理延迟约束下，通过 MoE、GQA、滑动窗口注意力、MTP，以及大规模可验证强化学习，兼顾能力、成本与速度。</p>
+      <dl class="meta-grid">
+        <div class="meta-item"><dt>讲者团队</dt><dd>JetBrains · Mellum Team</dd></div>
+        <div class="meta-item"><dt>主要材料</dt><dd>Mellum 2: Cooking an Agentic Code Model（35 页 PPT）</dd></div>
+        <div class="meta-item"><dt>核心模型</dt><dd>12B 总参数 · 每 token 激活约 2.5B 参数</dd></div>
+        <div class="meta-item"><dt>训练流程</dt><dd>Pre-training → SFT → RLVR</dd></div>
+        <div class="meta-item"><dt>上下文</dt><dd>原生 8K，长上下文阶段扩展至 128K</dd></div>
+        <div class="meta-item"><dt>许可</dt><dd>发布的模型权重采用 Apache 2.0</dd></div>
+      </dl>
+      <div class="ver"><span class="tag">PPT-based notes</span><span>依据主讲人 PPT 整理；补充处另行标明来源</span></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="toc">
+      <p class="toc-title">ON THIS PAGE</p>
+      <ol>
+        <li><a href="#overview"><span class="n">00</span>目标与总体路线</a></li>
+        <li><a href="#architecture"><span class="n">01</span>架构：速度与容量</a></li>
+        <li><a href="#mtp-mla"><span class="n">02</span>MTP 与 MLA</a></li>
+        <li><a href="#data-context"><span class="n">03</span>数据与长上下文</a></li>
+        <li><a href="#posttraining"><span class="n">04</span>SFT 与数据配方</a></li>
+        <li><a href="#rl"><span class="n">05</span>GRPO 与 RL 工程</a></li>
+        <li><a href="#mismatch"><span class="n">06</span>策略差异与 CISPO</a></li>
+        <li><a href="#results"><span class="n">07</span>评测结果</a></li>
+        <li><a href="#release"><span class="n">08</span>后续方向与模型发布</a></li>
+        <li><a href="#sources"><span class="n">09</span>来源与说明</a></li>
+      </ol>
+    </aside>
+
+    <main>
+      <section class="chapter" id="overview">
+        <div class="ch-head"><span class="ch-no">00 · OVERVIEW</span><h2>目标不是单纯做大模型，而是让代码模型能落地、能行动</h2><p class="ch-lead">笔者这次讲座基本上没听懂。以下以主讲人 PPT 为主，把内容按技术脉络重新整理；必要的概念解释是为了方便复习，不表示笔者已经完全掌握。</p></div>
+        <div class="warnbox"><strong>关于笔记范围：</strong>正文以 PPT 明确给出的内容与数字为主。手写笔记中已确认的两处信息——MTP 与 DeepSeek 的关联、约 90% 的条件准确率记录——放回对应技术部分；其他难以辨认的零散记录不再单独展开。</div>
+        <h3>两个目标</h3>
+        <div class="cards">
+          <div class="card"><p class="ct">01 · 做好 next-edit suggestion</p><p class="cb">为 IDE 场景提供便宜、快速、质量可靠的下一段代码编辑建议。这要求模型不仅输出质量好，还要控制单次延迟与并发吞吐。</p></div>
+          <div class="card"><p class="ct">02 · 尝试让模型具备 Agent 能力</p><p class="cb">从补全与问答延伸到多步软件工程任务：理解仓库、使用 shell / 文件工具、执行测试、根据反馈继续修改。</p></div>
+        </div>
+        <h3>为什么要做 12B-A2.5B 的代码模型？</h3>
+        <ul>
+          <li><strong>产品场景：</strong>延迟、数据治理，以及尽可能高质量的代码补全。</li>
+          <li><strong>开放模型：</strong>研究在相同推理预算下，能否做出比 Qwen2.5 更合适的模型。</li>
+          <li><strong>研究用途：</strong>JetBrains 的多个实验室可以基于开放权重开展新场景实验。</li>
+        </ul>
+        <h3>整体训练路线</h3>
+        <div class="flow four">
+          <div class="flow-step"><strong>Base</strong><small>原生 8K 上下文<br>预训练</small></div><div class="arrow">→</div>
+          <div class="flow-step"><strong>128K</strong><small>长上下文 mid-training</small></div><div class="arrow">→</div>
+          <div class="flow-step"><strong>SFT</strong><small>Instruct / Thinking</small></div><div class="arrow">→</div>
+          <div class="flow-step"><strong>RLVR</strong><small>Instruct / Thinking</small></div>
+        </div>
+        <p>可以把这套路线理解为：先训练基础代码与语言能力，再扩展可处理的上下文长度，然后用示范数据塑造交互行为，最后让模型在代码测试、数学验证器等可检查环境中通过强化学习改进表现。</p>
+        <h3>团队分工（PPT 列出的负责人）</h3>
+        <div class="tbl-wrap"><table><thead><tr><th>成员</th><th>负责方向</th></tr></thead><tbody>
+          <tr><td>Aral de Moor</td><td>Evaluation Lead（评测）</td></tr>
+          <tr><td>Marko Kojic</td><td>Pre-Training Lead（预训练）</td></tr>
+          <tr><td>Ivan Bondyrev</td><td>Post-Training Lead（后训练）</td></tr>
+          <tr><td>Bulat Salimzianov</td><td>RL Lead（强化学习）</td></tr>
+        </tbody></table></div>
+        <p>幻灯片还列出了 Joseph Shtok、Petr Borovlev、Kseniia Lysaniuk、Madeeswaran Kannan、Ivan Dolgov 与 Nikita Pavlichenko 等 Mellum 团队成员。</p>
+      </section>
+
+      <section class="chapter" id="architecture">
+        <div class="ch-head"><span class="ch-no">01 · PRE-TRAINING ARCHITECTURE</span><h2>架构选择：把总参数规模与每 token 计算量拆开</h2><p class="ch-lead">设计约束来自真实部署：在一张 H100、FP8 推理条件下，尽量匹配 Qwen2.5-7B 的延迟与吞吐，再在这个预算内比较不同架构的质量。</p></div>
+        <h3>设计方法与基础配置</h3>
+        <p>PPT 把目标使用形态描述为“长上下文输入、短编辑输出”，示例为约 2,304 个输入 token、256 个输出 token。团队比较 dense 与 MoE、专家激活数、KV heads、注意力机制和 MTP 等配置；对每个候选配置先画出相同延迟下的可行范围，再检查模型质量。</p>
+        <div class="cards">
+          <div class="card"><span class="big">12B</span><p class="ct">总参数量</p><p class="cb">模型中存储的总参数规模，决定可承载的知识与专家容量上限。</p></div>
+          <div class="card"><span class="big">2.5B</span><p class="ct">每 token 激活参数</p><p class="cb">MoE 每次只选择部分专家计算，因而每个 token 的计算量接近 2.5B dense 模型。</p></div>
+          <div class="card"><span class="big">28 × 2,304</span><p class="ct">层数 × hidden width</p><p class="cb">PPT 展示的 Mellum 2 主要配置；在质量与延迟约束中选定。</p></div>
+        </div>
+        <h3>Mixture of Experts（MoE）：每个 token 只调用部分专家</h3>
+        <p>每个 MoE 层包含多个前馈网络专家（FFN），路由器根据当前 token 的表示选择一部分专家。Mellum 2 采用 <strong>64 个专家、每个 token 激活 8 个、没有额外共享专家</strong>。因此，总容量是 12B 参数，但单个 token 不需要经过全部参数。</p>
+        <ul>
+          <li>专家数增加会扩大模型容量，但也受 GPU 显存限制；团队将专家数定为 64。</li>
+          <li>更少的激活专家通常速度更快；PPT 报告 2 个激活专家的延迟约比 8 个低 1.5 倍，但小规模模型的质量明显更差。</li>
+          <li>最终选择 8/64，在模型质量、推理速度和总容量之间取平衡。加入始终激活的 shared expert 没带来可测的质量收益，却增加每 token 计算量，因此被删去。</li>
+        </ul>
+        <h3>Grouped-Query Attention（GQA）：减少 KV cache</h3>
+        <p>自回归解码需要缓存之前 token 的 Key 和 Value。MHA 为每个 Query head 配一组 KV；MQA 让所有 Query heads 共享一组 KV；GQA 则介于两者之间，让一组 Query heads 共享一组 KV。</p>
+        <div class="tbl-wrap"><table><thead><tr><th>注意力形式</th><th>KV 组织</th><th>缓存相对规模（PPT 示意）</th><th>主要取舍</th></tr></thead><tbody>
+          <tr><td><strong>MHA</strong></td><td>每个 Query head 独立 KV</td><td>1×</td><td>表达能力强，但缓存最大。</td></tr>
+          <tr><td><strong>GQA</strong></td><td>多个 Query heads 共享 KV</td><td>1/8（示意）</td><td>质量接近 MHA，解码更省缓存。</td></tr>
+          <tr><td><strong>MQA</strong></td><td>所有 Query heads 共用一组 KV</td><td>1/32（示意）</td><td>缓存最小，但质量可能下降。</td></tr>
+        </tbody></table></div>
+        <p>模型有 32 个 Query heads；最终使用 4 个 KV heads，即每 8 个 Query heads 共用一个 KV head。PPT 提到，8 个 KV heads 对速度不够理想，而 2 个 KV heads 会损害质量，4 个是折中点。缓存越小，解码时需要搬运的数据越少；但共享程度越高，注意力的表达自由度也可能下降。</p>
+        <h3>Sliding-Window Attention（SWA）：局部与全局层混用</h3>
+        <p>局部滑动窗口层只关注当前位置之前最近的 <code>W</code> 个 token；全局层仍可访问所有先前 token。Mellum 2 按 <strong>3 个局部层配 1 个全局层</strong>的方式重复堆叠，窗口设置参考 Gemma 3。</p>
+        <ul>
+          <li>局部层：KV cache 不会随着全部上下文长度持续增长，prefill 的注意力成本也受窗口限制。</li>
+          <li>全局层：保留较远 token 之间的信息通路，避免整个模型只看局部窗口。</li>
+        </ul>
+        <p>这是结构上的折中：大部分层获得有界的局部注意力成本，同时通过周期性全局层保留长程信息。</p>
+        <h3>QK-Norm：抑制注意力 logits 失控</h3>
+        <p>QK-Norm 在计算 Query 与 Key 的点积之前，按注意力头对它们做 RMSNorm。没有归一化时，Query / Key 的幅度可能不断变大，使 attention logits 放大，softmax 逐渐变得近乎 one-hot，并引发 loss spike。归一化通过可学习的增益控制分数尺度，改善训练稳定性。PPT 说 Mellum 2 沿用了 Qwen3-MoE 风格解码器中的这一设计。</p>
+      </section>
+
+      <section class="chapter" id="mtp-mla">
+        <div class="ch-head"><span class="ch-no">02 · MTP & MLA</span><h2>MTP 是 DeepSeek 系列也采用的训练目标；MLA 则是权衡后没有选用的架构</h2><p class="ch-lead">这里把手写记录中确认的 MTP 与 90% accuracy 放回相关概念中，并补充 PPT 没展开讲清楚的 MLA 选型原因。</p></div>
+        <h3>Multi-Token Prediction（MTP）：一个辅助头预测更后面的 token</h3>
+        <p>普通自回归语言模型在每个位置主要学习预测下一个 token。MTP 再增加一个预测头，让同一位置同时对后续 token（例如 <code>t+2</code>）提供训练目标。这样一个位置就能给模型更密集的监督信号。这个思路并非 Mellum 独有：<strong>DeepSeek-V3 技术报告也采用了 MTP 训练目标</strong>，PPT 的引用中明确列出了 DeepSeek-V3。</p>
+        <div class="flow">
+          <div class="flow-step"><strong>共享 Transformer 主干</strong><small>读取 tokens 1…t，产生当前位置的 hidden state</small></div><div class="arrow">→</div>
+          <div class="flow-step"><strong>主预测头</strong><small>学习预测下一个 token（t+1）</small></div><div class="arrow">+</div>
+          <div class="flow-step"><strong>MTP 辅助头</strong><small>额外预测更后面的 token（例如 t+2）</small></div>
+        </div>
+        <p>Mellum 2 保留一个低权重的 MTP 头。PPT 报告的一次消融实验中，MMLU-Pro 提升 3.3、GSM8K 提升 3.0，MBPP 基本持平。推理时，辅助头还可作为 speculative decoding 的 draft：先提出候选 token，再由主模型验证，不需要另外部署一个独立草稿模型，因此设计目标是不额外增加服务成本。</p>
+        <div class="notebox"><strong>手写笔记中的 accuracy：</strong>笔者记录到“在前一个 token 预测正确的条件下，后一个 token 的预测准确率约为 90%”。这里按你的补充保留为现场记录；PPT 本身没有给出这一数值的评测集、样本范围与统计定义，因此不能把它当作 MTP 的通用准确率，也不应与上述 MMLU-Pro / GSM8K 分数混为一谈。</div>
+        <h3>Multi-head Latent Attention（MLA）：为什么 Mellum 2 最后没有采用？</h3>
+        <p><strong>MLA 的目标与 GQA 相似：降低长上下文解码时的 KV cache 成本，但方法不同。</strong>GQA 通过让多个 Query heads 共享 KV heads 来减少缓存；MLA 则把 Key / Value 的信息压缩到低秩 latent 向量中缓存，需要计算注意力时再利用投影关系恢复或吸收相应计算。MLA 能大幅压缩缓存，但会引入潜变量投影、额外计算以及对推理内核支持的要求。</p>
+        <p>这不是只靠通用原理推测的原因：Mellum 2 技术报告的架构消融附录专门报告了 MLA 实验。团队移除 MoE 层、换成 DeepSeek 风格 MLA 进行测试，结果是：</p>
+        <ul>
+          <li><strong>速度约束下可扩到约 5.5B 参数：</strong>以当时 vLLM 后端唯一支持的 <code>latent rank = 512</code> 进行实验，MLA 架构能在大致匹配 Qwen2.5-7B 延迟的条件下做到约 5.5B 参数。</li>
+          <li><strong>质量收益不够：</strong>在既定延迟预算下，测试的 dense 配置没有稳定超过 Qwen2.5-7B 的评测质量基线；MLA 带来的质量提升不足以证明额外训练复杂度是值得的。</li>
+          <li><strong>模型规模不匹配：</strong>报告认为 rank 512 对 Mellum 2 所在的模型规模偏大，能带来的 KV-cache 压缩收益因此有限。</li>
+          <li><strong>MoE 路线更符合目标：</strong>转向 MoE 后，总参数量可扩至约 12B，每 token 激活约 2.5B 参数，更适合在既定推理预算内增加模型容量。</li>
+        </ul>
+        <div class="keybox"><strong>结论：</strong>不是“MLA 一定比 GQA 差”，而是 Mellum 团队在当时的模型规模、vLLM 支持、硬件与延迟预算下，发现 MLA 的缓存优势没有转化成足够的质量—速度收益；MoE + GQA 更符合 IDE 场景的目标。若模型规模、后端内核或硬件变化，结论未必相同。</div>
+      </section>
+
+      <section class="chapter" id="data-context">
+        <div class="ch-head"><span class="ch-no">03 · DATA & LONG CONTEXT</span><h2>约 10.65T tokens 的三阶段预训练，以及 128K 长上下文扩展</h2><p class="ch-lead">数据配方逐步从广泛网页语料转向更高比例的代码与数学内容；长上下文阶段还测试了位置外推与额外长文档数据的影响。</p></div>
+        <h3>预训练数据与三阶段配比</h3>
+        <p>整套预训练约使用 <strong>10.65T tokens</strong>。数据包括许可较宽松的代码仓库、Common Crawl 网页数据、合成改写内容和数学教材；技术报告提到数据与 Nemotron-CC、FineWeb 有关。训练使用 Muon 优化器，并贯穿 BF16/FP8 混合精度方案；代码采用 Fill-in-the-Middle（FIM）形式训练，使模型学习根据前后文填补中间内容。</p>
+        <div class="tbl-wrap"><table><thead><tr><th>阶段</th><th>目标</th><th>tokens</th><th>网页</th><th>代码</th><th>数学</th><th>FIM 比例</th></tr></thead><tbody>
+          <tr><td>Phase 1</td><td>Foundation</td><td>6.18T</td><td>70%</td><td>23%</td><td>6%</td><td>50%</td></tr>
+          <tr><td>Phase 2</td><td>Quality uplift</td><td>2.79T</td><td>44%</td><td>42%</td><td>14%</td><td>10%</td></tr>
+          <tr><td>Phase 3</td><td>Capability sharpening</td><td>1.69T</td><td>18%</td><td>59%</td><td>23%</td><td>50%（仅代码）</td></tr>
+        </tbody></table></div>
+        <p>数据份额的变化很直接：代码占比从 23% 升到 42%，再升到 59%。第一阶段覆盖面更广；第二阶段提高高质量代码与数学内容的比例；第三阶段进一步强化代码能力。PPT 同时报告使用 Muon 与 BF16/FP8 hybrid precision，但并没有声称单一技巧可以独立解释最终效果。</p>
+        <h3>长上下文：layer-selective YaRN</h3>
+        <p>模型基础上下文为 8K，团队在长上下文 mid-training 阶段扩展到 128K（131,072 tokens）。用到的是 layer-selective YaRN：只在全局注意力层进行相应的位置缩放，方案参考 Gemma 3 与 OLMo 3，而不是所有层统一改变。</p>
+        <p>团队观察到，长上下文训练在某些指标已经趋于饱和后仍继续训练，目的是让 MoE router 在扩展上下文的环境中稳定下来。另一方面，加入 OLMo 3 的 Longmino（长科学 PDF 加合成任务）后，RULER 结果在各方案上都下降约 2–3 个百分点，说明更多长文档数据不一定自动带来更好的长上下文表现。</p>
+        <div class="tbl-wrap"><table><thead><tr><th>64K RULER 配方比较</th><th>分数</th><th>解释</th></tr></thead><tbody>
+          <tr><td>Layer-selective YaRN（Mellum 方案）</td><td>0.64</td><td>最高</td></tr>
+          <tr><td>Uniform θ bump（5M）</td><td>0.52</td><td>次之</td></tr>
+          <tr><td>θ unchanged</td><td>0.33</td><td>超过 32K 后表现崩塌</td></tr>
+        </tbody></table></div>
+        <div class="notebox"><strong>读取这些分数时要小心：</strong>PPT 说明 RULER 的绝对分数受 QA prompt 格式问题影响，因此这里应看作不同位置扩展方案之间的相对排序，而不是模型真实长上下文能力的绝对刻度。</div>
+      </section>
+
+      <section class="chapter" id="posttraining">
+        <div class="ch-head"><span class="ch-no">04 · FINE-TUNING</span><h2>SFT 先教模型怎么回答，RLVR 再用可验证结果强化行为</h2><p class="ch-lead">Mellum 2 从同一长上下文基础模型分出 Instruct 与 Thinking 两条后训练路线，后续分别进行可验证奖励强化学习。</p></div>
+        <div class="cards">
+          <div class="card"><p class="ct">SFT · Supervised Fine-Tuning</p><p class="cb">用精选示范逐 token 模仿目标输出。重点是把模型调整到适合指令、对话、代码协作和工具调用的行为模式。</p></div>
+          <div class="card"><p class="ct">RLVR · Reinforcement Learning with Verifiable Rewards</p><p class="cb">让模型先采样回答，再由程序、测试或其他验证器判断是否满足目标，并利用奖励继续优化策略。</p></div>
+        </div>
+        <h3>后训练数据量与数据类别</h3>
+        <div class="cards">
+          <div class="card"><span class="big">≈47B tokens</span><p class="ct">Instruct</p><p class="cb">倾向直接、遵循指令地回答。</p></div>
+          <div class="card"><span class="big">≈167B tokens</span><p class="ct">Thinking</p><p class="cb">训练显式的思考过程与复杂问题求解行为。</p></div>
+        </div>
+        <p>两条数据线的混合都包括：聊天与指令遵循（chat & IF）、代码任务、Agent 轨迹、工具调用和错误恢复、推理以及安全。Agent 轨迹尤其重要：模型不只看最终正确答案，也会接触到调用工具、读取执行结果、修正错误并继续尝试的过程。</p>
+        <h3>身份对话的过采样：错误会发生在看似简单的地方</h3>
+        <p>早期模型有时会把自己介绍成 Google 助手。团队强调，合成数据流水线中没有 Google 模型；问题仍然发生。解决方法是将身份对话过采样 3 倍。这个例子体现了后训练里一个实际问题：即便来源没有使用某品牌模型，模型也可能从语料中的常见模式学到错误的身份描述，因此要用针对性数据纠正行为。</p>
+      </section>
+
+      <section class="chapter" id="rl">
+        <div class="ch-head"><span class="ch-no">05 · REINFORCEMENT LEARNING</span><h2>GRPO：为同一个问题采样一组答案，再用组内相对奖励更新策略</h2><p class="ch-lead">Mellum 的强化学习不只是选择一种目标函数。它还依赖大规模沙箱、专门的验证器、异步 rollout 与训练，以及处理不同推理引擎间概率差异的工程机制。</p></div>
+        <h3>为什么代码任务适合 RLVR？</h3>
+        <p>代码往往存在可执行的客观检查：运行单元测试、检查补丁、验证代码能否完成任务。这样奖励不必完全依赖人工偏好或另一个语言模型的主观评分。Mellum 的代码环境会按测试通过比例计分：即使一个补丁只修好一部分问题，也可以获得部分奖励，而不是只能拿到“全对 / 全错”的二元反馈。</p>
+        <h3>GRPO 是什么？与 PPO 有什么关系？</h3>
+        <p><strong>GRPO（Group Relative Policy Optimization，组相对策略优化）由 DeepSeekMath 提出，是 PPO 的一种变体。</strong>PPO 通常需要一个价值模型（critic）估计当前状态未来能获得的回报，再用实际回报减去估计值形成 advantage。GRPO 的关键简化是：对于同一个 prompt，直接采样一组回答，以这组回答的奖励均值作为基线，比较每个回答相对于同组其他回答的表现，从而省掉单独训练的 critic。</p>
+        <div class="flow four">
+          <div class="flow-step"><strong>1 · 采样</strong><small>同一个问题 q，由旧策略生成 G 个回答</small></div><div class="arrow">→</div>
+          <div class="flow-step"><strong>2 · 验证</strong><small>运行测试、数学验证器或任务环境，得到每条回答的 reward</small></div><div class="arrow">→</div>
+          <div class="flow-step"><strong>3 · 组内比较</strong><small>计算每条回答相对同组平均奖励的 advantage</small></div><div class="arrow">→</div>
+          <div class="flow-step"><strong>4 · 更新策略</strong><small>用 PPO 风格的概率比率与 clipping 更新 token 概率</small></div>
+        </div>
+        <h3>核心计算：奖励如何变成学习信号？</h3>
+        <p>在原始 GRPO 的标准写法里，先计算组内平均奖励，再用奖励与组均值的差（通常还除以组内标准差）得到 advantage：</p>
+        <div class="formula">
+          <div class="frow"><span class="flabel">组内平均奖励</span><span class="math">μ<sub>r</sub> = (1/G) Σ<sub>i=1…G</sub> r<sub>i</sub></span></div>
+          <div class="frow"><span class="flabel">标准 GRPO advantage</span><span class="math">A<sub>i</sub> = (r<sub>i</sub> − μ<sub>r</sub>) / (σ<sub>r</sub> + ε)</span></div>
+          <div class="frow"><span class="flabel">token 概率比</span><span class="math">ρ<sub>i,t</sub>(θ) = π<sub>θ</sub>(o<sub>i,t</sub> | q, o<sub>i,&lt;t</sub>) / π<sub>θold</sub>(o<sub>i,t</sub> | q, o<sub>i,&lt;t</sub>)</span></div>
+          <div class="frow"><span class="flabel">PPO clipped term</span><span class="math">min(ρA, clip(ρ, 1−ε, 1+ε)A) − β D<sub>KL</sub>(π<sub>θ</sub> || π<sub>ref</sub>)</span></div>
+          <p class="fnote">A 为 advantage；r 为验证器给出的奖励；πθ 是当前策略，πθold 是生成这组轨迹时的旧策略，πref 是参考策略。clipping 限制新旧策略在单次更新中偏离过大，KL 项则抑制当前策略离参考策略太远。</p>
+        </div>
+        <p>直觉是：同一个问题中，比其他回答得分高的回答会得到正向 advantage，该回答各 token 的概率会按这个信号被强化；比组内平均水平差的回答则会得到负向信号。使用同一 prompt 的分组比较，也减少了不同问题本身难度不同所带来的奖励尺度差异。</p>
+        <h3>Mellum PPT 强调的 GRPO 配方细节</h3>
+        <ol>
+          <li><strong>代码任务使用部分奖励：</strong>奖励等于通过的测试比例，所以部分修复仍有学习信号。</li>
+          <li><strong>全组同分就丢弃：</strong>PPT 举例每组 16 个答案。如果它们的 reward 完全相同，组内没有谁优于谁的信号，无法形成有效的相对 advantage，因此跳过整组。</li>
+          <li><strong>无法评分的答案给零奖励：</strong>如果回答格式或执行过程导致无法评分，先按零奖励处理，并把错误信息反馈进下一次 rollout，促使模型修正输出。</li>
+          <li><strong>验证器崩溃与模型失败分开：</strong>如果是验证器基础设施故障，则重试，不计为模型零分，避免错误污染 reward 信号。</li>
+          <li><strong>不按组内标准差缩放 advantage（Mellum PPT 的配方）：</strong>标准 GRPO 常把奖励差除以组内标准差；Mellum 幻灯片指出，这会过度放大“几乎解出来”与“几乎完全做不出来”的问题组。其配方不除以组内 spread，避免这类 prompt 被不成比例地加权。此处是 Mellum 所述的具体变体，不应误当成所有 GRPO 实现都采用相同做法。</li>
+          <li><strong>按 token 聚合 loss：</strong>PPT 特别说 loss 按 token 平均而不是先把每条回答等权平均，避免长回答的 token 在整体训练中被低估。</li>
+          <li><strong>Instruct 与 Thinking 的 reward shaping 不同：</strong>Instruct 惩罚可见的思考过程，鼓励直接回答；Thinking 惩罚过长推理，以及跳过应使用工具的回答。</li>
+        </ol>
+        <h3>异步 rollout 为什么重要？</h3>
+        <p>软件工程任务的轨迹长度差别很大：有的很快结束，有的要多次运行测试、读文件、改代码。如果同步循环等待一批里最慢的轨迹，GPU 训练端就会空转。Mellum 采用异步方案：vLLM 推理引擎持续生成 rollout，轨迹进入 buffer，Megatron-Bridge trainer 同时更新策略；更新权重推送到推理端后会重算 KV cache。</p>
+        <div class="cards">
+          <div class="card"><span class="big">10,000</span><p class="ct">并发 SWE 沙箱</p><p class="cb">用于并行处理软件工程任务与测试。</p></div>
+          <div class="card"><span class="big">≈2 days</span><p class="ct">一次较完整的异步 GRPO run</p><p class="cb">PPT 约为 700 个训练步骤，累计涉及数百万次沙箱运行。</p></div>
+          <div class="card"><span class="big">≤ 2 steps</span><p class="ct">轨迹策略版本陈旧度</p><p class="cb">一条轨迹最多跨过连续两个策略版本，减少等待同时控制 off-policy 程度。</p></div>
+        </div>
+        <h3>验证器不是一种：CPU 验证集群与网关</h3>
+        <p>答案检查主要是 CPU 工作，因此验证器在独立 CPU 集群运行，可以和 GPU 训练资源分别扩容。网关根据任务类型分发到适合的 verifier：</p>
+        <div class="tbl-wrap"><table><thead><tr><th>验证器类型</th><th>典型任务</th><th>奖励依据 / 作用</th></tr></thead><tbody>
+          <tr><td>代码沙箱</td><td>12 种编程语言</td><td>测试通过比例作为 reward。</td></tr>
+          <tr><td>数学验证器</td><td>符号求解、Reasoning Gym</td><td>检查数学答案或推理任务结果。</td></tr>
+          <tr><td>Workplace 环境</td><td>有状态的工作区交互</td><td>检查环境状态与任务是否完成。</td></tr>
+          <tr><td>SWE 会话</td><td>真实代码仓库、shell 和文件工具</td><td>每条 rollout 使用沙箱，通过测试决定 reward。</td></tr>
+          <tr><td>LLM judge</td><td>开放式、难以直接执行的输出</td><td>由语言模型判断自由格式回答。</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="chapter" id="mismatch">
+        <div class="ch-head"><span class="ch-no">06 · TRAINING / INFERENCE MISMATCH</span><h2>强化学习最怕奖励信号“看起来有用，实际却不对应同一个策略”</h2><p class="ch-lead">PPT 连续两页讲了训练与推理不一致，以及从标准 clipping 到 CISPO 的处理变化。这些属于训练系统工程，不只是 GRPO 公式本身。</p></div>
+        <h3>训练引擎与推理引擎为何会算出不同概率？</h3>
+        <p>rollout 通常由 vLLM 等推理引擎生成，而训练时会用 trainer 重新计算 token 概率。即便模型权重相同，批次大小改变也可能改变 GPU kernel 的浮点求和顺序，造成数值差异；MoE 模型还可能因为细微数值变化而把 token 路由到不同专家，再叠加 BF16 舍入误差。</p>
+        <p>PPT 引述的研究案例显示：相同权重下，vLLM 与训练器计算出的 token 概率可能出现极端差异。此时用训练概率除以 rollout 概率得到的 importance ratio，不一定代表正常的策略更新幅度，训练过程可能悄悄变成 off-policy。</p>
+        <div class="keybox"><strong>Mellum 2.0 / 2.1 的处理：</strong>对 trainer / inference 概率比率落在 <code>[0.5, 5.0]</code> 之外的 token 做 mask，而不是 clip。PPT 的理由是：如果 MoE token 已经路由到不同专家，极端比率不再携带可靠的学习信号，直接裁剪数值反而会假装这个信号仍然可用。</div>
+        <h3>从标准 clipping 到 clip-higher，再到 CISPO</h3>
+        <div class="tbl-wrap"><table><thead><tr><th>方案</th><th>怎么处理概率比</th><th>PPT 指出的影响</th></tr></thead><tbody>
+          <tr><td>标准 clipping</td><td>ratio 超出 [0.8, 1.2] 后，clipped objective 可能使该 token 没有有效梯度</td><td>某些 token 被裁掉后不再学习。</td></tr>
+          <tr><td>2.0 · clip-higher</td><td>只提高上界到 1.28</td><td>放宽 ratio 上限，但仍采用 token 层面的 clipping。</td></tr>
+          <tr><td>2.1 · CISPO</td><td>裁剪 importance weight，而不是直接裁掉 token</td><td>每个 token 仍保留梯度；“wait”“recheck”等较少见 token 不会一触及边界就完全失去学习信号。</td></tr>
+        </tbody></table></div>
+        <p>这里要区分两件事：前一页的 <code>[0.5, 5.0]</code> 是处理训练—推理引擎严重不一致的 mask 范围；后一页的 <code>[0.8, 1.2]</code> 与 <code>1.28</code> 是不同策略优化方案中的 clipping 设定。它们用途不同，不是同一条阈值规则。</p>
+      </section>
+
+      <section class="chapter" id="results">
+        <div class="ch-head"><span class="ch-no">07 · RESULTS</span><h2>结果：并发吞吐有优势，但不同能力维度并非全面领先</h2><p class="ch-lead">以下先按 PPT 原样列出主要数字。不同模型的结果来自各自报告或模型卡，仍需注意评测协议、版本与推理设置。</p></div>
+        <h3>预训练推理速度</h3>
+        <div class="tbl-wrap"><table><thead><tr><th>模型</th><th>单请求输出（token/s）</th><th>并发吞吐（token/s）</th></tr></thead><tbody>
+          <tr><td>Mellum 2（12B MoE · 2.5B active）</td><td>192</td><td>5,179</td></tr>
+          <tr><td>Qwen2.5-7B</td><td>193</td><td>4,283</td></tr>
+          <tr><td>Qwen3-8B</td><td>169</td><td>2,897</td></tr>
+        </tbody></table></div>
+        <p>单个请求的速度与 Qwen2.5-7B 基本持平（192 vs 193 token/s）；并发饱和状态下，Mellum 2 比 Qwen2.5-7B 高 21%，比 Qwen3-8B 高 79%。测试的输入 / 输出形态约为 2,304 / 256 tokens，所以这些数字应结合它的 next-edit 场景理解。</p>
+        <h3>Instruct 评测</h3>
+        <div class="tbl-wrap"><table><thead><tr><th>Benchmark</th><th>Mellum 2 Instruct</th><th>Qwen3.5-4B</th><th>OLMo-3-7B</th></tr></thead><tbody>
+          <tr><td>LiveCodeBench v6</td><td>37.2</td><td>51.0</td><td>28.2</td></tr>
+          <tr><td>EvalPlus</td><td>78.4</td><td>69.4</td><td>67.3</td></tr>
+          <tr><td>BFCL v4</td><td>44.2</td><td>52.0</td><td>19.8</td></tr>
+          <tr><td>BFCL v3</td><td>66.3</td><td>64.1</td><td>41.9</td></tr>
+          <tr><td>IFEval</td><td>75.8</td><td>82.1</td><td>83.2</td></tr>
+          <tr><td>AIME 25/26</td><td>41.7</td><td>38.3</td><td>40.0</td></tr>
+        </tbody></table></div>
+        <p>PPT 注明 Instruct 表使用 Mellum 2 经 RL 后的模型；评测总体采用 greedy decoding、temperature 0，BFCL 例外为 0.01，LiveCodeBench 例外为 0.2。</p>
+        <h3>Thinking 评测</h3>
+        <div class="tbl-wrap"><table><thead><tr><th>Benchmark</th><th>Mellum 2.1</th><th>Mellum 2</th><th>Gemma 4 E4B</th><th>Qwen3.5-9B</th></tr></thead><tbody>
+          <tr><td>LiveCodeBench v6</td><td>82.0</td><td>69.4</td><td>69.4</td><td>75.4</td></tr>
+          <tr><td>SWE-bench Verified</td><td>47.0</td><td>2.0</td><td>23.0</td><td>50.0</td></tr>
+          <tr><td>SWE-bench Pro</td><td>28.0</td><td>0.0</td><td>4.0</td><td>38.0</td></tr>
+          <tr><td>Terminal-Bench 2.1</td><td>17.4</td><td>0.6</td><td>3.4</td><td>21.7</td></tr>
+          <tr><td>BFCL v4</td><td>62.3</td><td>49.6</td><td>52.5</td><td>58.5</td></tr>
+          <tr><td>IFEval</td><td>90.6</td><td>79.5</td><td>90.8</td><td>92.4</td></tr>
+          <tr><td>AIME 25/26</td><td>83.3</td><td>60.1</td><td>45.0</td><td>86.7</td></tr>
+        </tbody></table></div>
+        <p>PPT 的总结是：Mellum 2.1 Thinking 接近 Qwen3.5-9B，但吞吐约为其 2 倍（单请求约 1.3 倍）。表格也显示它并非每项都领先，例如 SWE-bench 和 AIME 仍低于 Qwen3.5-9B。PPT 注明 Thinking 评测采用模型卡流程、JetBrains 自报，所有模型均重新运行；Agentic 项目使用相同 Pi v0.73.1 harness、shell 与文件工具，并设为 114K 上下文。</p>
+      </section>
+
+      <section class="chapter" id="release">
+        <div class="ch-head"><span class="ch-no">08 · WHAT'S NEXT</span><h2>更便宜的小型 SWE Agent，可能让软件工程 Agent 用得更多</h2><p class="ch-lead">最后几页讨论了 Agent 使用成本变化、公开 checkpoint，以及本地运行方式。</p></div>
+        <h3>Small SWE Agents 与 Jevons 悖论</h3>
+        <p>Jevons 悖论指一种资源使用效率提高、单位成本降低后，总消费量反而上升的现象。放到 Agent 上，模型越便宜、响应越快，团队越可能把更多日常软件工程任务交给 Agent，因此系统效率会变得更重要。PPT 还提出开放问题：前沿模型是否已经能用很轻的工具脚手架（例如仅 bash）完成任务，而不必依赖复杂框架。</p>
+        <h3>公开模型与 checkpoint</h3>
+        <p>讲座列出的 checkpoint 均采用 Apache 2.0 许可。需要注意：带 <code>-SFT</code> 的是监督微调检查点；裸的 <code>Instruct</code> / <code>Thinking</code> 名称对应 RL 后模型。</p>
+        <div class="tbl-wrap"><table><thead><tr><th>阶段</th><th>Hugging Face checkpoint</th></tr></thead><tbody>
+          <tr><td>Base-Pretrain</td><td><a href="https://huggingface.co/JetBrains/Mellum2-12B-A2.5B-Base-Pretrain" target="_blank" rel="noopener">JetBrains/Mellum2-12B-A2.5B-Base-Pretrain</a></td></tr>
+          <tr><td>Base</td><td><a href="https://huggingface.co/JetBrains/Mellum2-12B-A2.5B-Base" target="_blank" rel="noopener">JetBrains/Mellum2-12B-A2.5B-Base</a></td></tr>
+          <tr><td>Instruct-SFT</td><td><a href="https://huggingface.co/JetBrains/Mellum2-12B-A2.5B-Instruct-SFT" target="_blank" rel="noopener">JetBrains/Mellum2-12B-A2.5B-Instruct-SFT</a></td></tr>
+          <tr><td>Thinking-SFT</td><td><a href="https://huggingface.co/JetBrains/Mellum2-12B-A2.5B-Thinking-SFT" target="_blank" rel="noopener">JetBrains/Mellum2-12B-A2.5B-Thinking-SFT</a></td></tr>
+          <tr><td>Instruct RL</td><td><a href="https://huggingface.co/JetBrains/Mellum2-12B-A2.5B-Instruct" target="_blank" rel="noopener">JetBrains/Mellum2-12B-A2.5B-Instruct</a></td></tr>
+          <tr><td>Thinking RL</td><td><a href="https://huggingface.co/JetBrains/Mellum2-12B-A2.5B-Thinking" target="_blank" rel="noopener">JetBrains/Mellum2-12B-A2.5B-Thinking</a></td></tr>
+          <tr><td>Mellum 2.1 Thinking</td><td><a href="https://huggingface.co/JetBrains/Mellum2.1-12B-A2.5B-Thinking" target="_blank" rel="noopener">JetBrains/Mellum2.1-12B-A2.5B-Thinking</a>（含 GGUF）</td></tr>
+        </tbody></table></div>
+        <p>本地运行方式包括 llama.cpp，以及基于它的 Ollama / LM Studio；官方 GGUF 可用于本地推理，PPT 提到从 BF16 到 Q4_K_M 的量化形式。</p>
+        <h3>联系</h3>
+        <p>讲座最后邀请 thesis、internships 与 collaborations 合作，联系邮箱为 <a href="mailto:mellum@jetbrains.com">mellum@jetbrains.com</a>。</p>
+      </section>
+
+      <section class="chapter refs" id="sources">
+        <div class="ch-head"><span class="ch-no">09 · SOURCES</span><h2>材料与进一步阅读</h2><p class="ch-lead">PPT 内容按幻灯片转录与整理；解释 MLA 和 GRPO 时，另外核对了相应技术报告。</p></div>
+        <ul>
+          <li><span class="rt">Mellum 2: Cooking an Agentic Code Model</span><span class="ru">JetBrains · 用户提供的 35 页讲座 PPT（主来源）</span></li>
+          <li><span class="rt">Mellum 2 Technical Report</span><span class="ru"><a href="https://arxiv.org/abs/2605.31268" target="_blank" rel="noopener">https://arxiv.org/abs/2605.31268</a> · 重点核对 MLA 消融、MoE 与训练配方</span></li>
+          <li><span class="rt">DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models</span><span class="ru"><a href="https://arxiv.org/abs/2402.03300" target="_blank" rel="noopener">https://arxiv.org/abs/2402.03300</a> · GRPO 原始论文</span></li>
+          <li><span class="rt">DeepSeek-V3 Technical Report</span><span class="ru"><a href="https://arxiv.org/abs/2412.19437" target="_blank" rel="noopener">https://arxiv.org/abs/2412.19437</a> · MLA、MoE 与 MTP</span></li>
+          <li><span class="rt">Mellum 2.1 Thinking model card</span><span class="ru"><a href="https://huggingface.co/JetBrains/Mellum2.1-12B-A2.5B-Thinking" target="_blank" rel="noopener">https://huggingface.co/JetBrains/Mellum2.1-12B-A2.5B-Thinking</a></span></li>
+        </ul>
+        <div class="notebox">阅读边界：PPT 的评测数字按幻灯片原样保留；技术解释依据技术报告与原始论文补充。手写笔记中的约 90% accuracy 作为现场记录注明，而不是当作 PPT 已公布的基准成绩。本文不再展开其他无法辨认的手写片段。</div>
+      </section>
+      <footer class="doc-footer"><strong>个人学习笔记</strong><br>笔者这次讲座基本上没听懂。本文尽可能把 PPT 中的结构、数字与训练配方补齐；概念解释用于帮助后续复习，仍建议结合原始报告和论文阅读。</footer>
+    </main>
+  </div>
+</div>
+<script>
+document.querySelectorAll('pre.code').forEach(function(pre){
+  var btn=document.createElement('button');btn.type='button';btn.className='copy-btn';btn.textContent='复制';
+  btn.addEventListener('click',async function(){
+    var text=pre.querySelector('code')?pre.querySelector('code').innerText:pre.innerText;
+    try{await navigator.clipboard.writeText(text);btn.textContent='已复制';btn.classList.add('ok');}
+    catch(e){btn.textContent='复制失败';btn.classList.add('fail');}
+    setTimeout(function(){btn.textContent='复制';btn.classList.remove('ok','fail');},1400);
+  });pre.appendChild(btn);
+});
+</script>
+</body></html>
