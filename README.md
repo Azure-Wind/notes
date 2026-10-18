@@ -14,14 +14,6 @@
 
 **AI 没有做的事**：选题、听课记录、推导过程、写实验代码、判断结论、核对数字。
 
-## 为什么是单文件 HTML
-
-每篇文章都是一个自包含的 HTML：样式全部内联，不引用外部字体、CDN 或图片。
-
-- 离线可读：发给别人一个文件就够了，不会掉样式。
-- 可直接打印：`Ctrl + P` 选 A4、勾选「背景图形」，就能存成 PDF。
-- 好归档：十年后浏览器还能打开，不依赖任何框架和构建工具。
-
 ## 内容
 
 | 集合 | 篇目 | 主题 |
@@ -44,29 +36,6 @@ notes/
     ├── git-basics.html
     └── logistic-regression-and-image-recognition.html
 ```
-
-## 怎么读
-
-- **本地**：直接双击 `index.html`。所有站内链接都指向具体文件，不依赖 Web 服务器。
-- **线上**：GitHub Pages（`lectures/` 之类的短地址由 Pages 自动回落到 `index.html`）。
-
-## 新增一篇之后
-
-```bash
-python rebuild.py           # 重建三张索引页
-python rebuild.py --check   # 只检查是否过期（过期退出码 1）
-```
-
-索引的标题与摘要**取自文章自己的 `<head>`**：
-
-```html
-<title>文章标题</title>
-<meta name="description" content="一句话摘要，会显示在索引卡片里">
-<!-- 讲座专用，可选 -->
-<!-- lecture-date: 2026-10-16 | lecture-title: 中文标题 | lecture-title-en: English Title -->
-```
-
-所以想让索引好看，改文章头部即可，不用去动索引文件。
 
 ## 写作约定
 
