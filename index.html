@@ -84,7 +84,7 @@
       <h2>入门指南<span class="en">基础与工具</span></h2>
       <p class="desc">计算机使用与开发工具的基础材料。已收录《Git 入门笔记》：三棵树模型、分支与合并、冲突解决、远程推送、GitHub Pages 部署。</p>
       <div class="meta">
-        <span><b>1</b> 篇笔记</span>
+        <span><b>2</b> 篇笔记</span>
         <span>最近更新 2026-10-17</span>
       </div>
     </a>
@@ -92,9 +92,9 @@
   </div>
 
   <div class="note">
-    本页是手写的总入口（不随内容自动更新）；各集合内部的索引页由各自的生成脚本产出，例如
-    <code>lectures/_脚本/生成索引.py</code> 会重建 <code>lectures/index.html</code>。
-    新增一个主题集合时：建同名目录 + 一个 <code>index.html</code>，然后回本页加一张卡片。
+    索引由仓库根目录的 <code>rebuild.py</code> 统一重建：讲座索引取自 <code>lectures/</code> 下的文章，
+    入门指南的条目取自各篇文章的 <code>&lt;title&gt;</code> 与 <code>&lt;meta name="description"&gt;</code>，
+    本页两张卡片的篇数与「最近更新」也随之刷新。新增文章后运行 <code>python rebuild.py</code> 即可。
   </div>
 
   <footer>
