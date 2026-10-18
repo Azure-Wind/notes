@@ -275,7 +275,7 @@ LECTURES_TMPL = """<!DOCTYPE html>
 <body>
 <div class="page">
 
-  <div class="crumbs"><a href="../">笔记库</a> › 讲座笔记</div>
+  <div class="crumbs"><a href="../index.html">笔记库</a> › 讲座笔记</div>
 
   <header class="top">
     <span class="kicker">Lectures</span>
@@ -363,7 +363,7 @@ def patch_root(text, n_lec, n_gs, lec_date, gs_date):
     new = re.sub(r"<b>\d+</b> 场讲座", "<b>%d</b> 场讲座" % n_lec, text)
     new = re.sub(r"<b>\d+</b> 篇笔记", "<b>%d</b> 篇笔记" % n_gs, new)
 
-    marker = 'href="getting-started/"'
+    marker = 'href="getting-started/index.html"'
     if marker in new:
         i = new.index(marker)
         head, tail = new[:i], new[i:]
