@@ -216,6 +216,11 @@ figcaption b{color:var(--rust);font-weight:700;margin-right:6px}
 .top-btn.show{opacity:1;pointer-events:auto}
 .top-btn:hover{transform:translateY(-2px);color:var(--rust)}
 
+/* ---------------- 面包屑 ---------------- */
+.crumbs{max-width:1180px;margin:0 auto;padding:20px 28px 0;font-size:13px;color:var(--muted);letter-spacing:.01em}
+.crumbs a{color:var(--rust);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s}
+.crumbs a:hover{border-bottom-color:var(--rust)}
+
 /* ---------------- 响应式 ---------------- */
 @media (max-width:980px){
   .shell{grid-template-columns:1fr;gap:20px;padding-top:26px}
@@ -225,6 +230,7 @@ figcaption b{color:var(--rust);font-weight:700;margin-right:6px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   .kpis-4{grid-template-columns:repeat(2,minmax(0,1fr))}
   .cover-in{padding:44px 20px 34px}
+  .crumbs{padding:14px 20px 0}
   .shell{padding-left:18px;padding-right:18px}
   .sec{padding:24px 20px 26px;border-radius:12px}
   .grad{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -244,7 +250,7 @@ figcaption b{color:var(--rust);font-weight:700;margin-right:6px}
   :root{--paper:#fff;--card:#fff}
   html{scroll-behavior:auto}
   body{background:#fff;font-size:10.6pt;line-height:1.65;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .toc,.copy-btn,.expand-btn,.top-btn,.code-lang{display:none!important}
+  .toc,.crumbs,.copy-btn,.expand-btn,.top-btn,.code-lang{display:none!important}
   .cover{background:#fff;border-bottom:1px solid #ddd}
   .cover::before{height:2px;background:#b0441d}
   .cover-in{padding:0 0 10mm}
@@ -269,6 +275,8 @@ figcaption b{color:var(--rust);font-weight:700;margin-right:6px}
 </style>
 </head>
 <body>
+
+<div class="crumbs"><a href="../index.html">笔记库</a> › <a href="./index.html">入门指南</a> › 0 与 1：逻辑回归图像识别全解</div>
 
 <header class="cover">
   <div class="cover-in">
