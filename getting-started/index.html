@@ -7,75 +7,105 @@
 <title>入门指南 · 笔记库</title>
 <style>
   :root{
-    --ink:#141a22;--ink-2:#3d4753;--muted:#69737f;--faint:#8d96a1;
-    --line:#dfe4ea;--line-2:#c8d0d9;--bg:#eef0f3;--paper:#fff;
-    --navy:#1f4e79;--navy-pale:#eef3f9;--teal:#176f68;--teal-pale:#eaf4f2;
+    --paper:#f4f1e9;--card:#fffefb;
+    --ink:#1f2329;--ink-2:#343a42;--muted:#6f6960;--faint:#8a8172;
+    --line:#e6dfd2;--line-2:#d5cbb8;
+    --rust:#b0441d;--rust-2:#8d3516;--rust-soft:#fbeee6;
+    --pine:#2c5f52;--pine-soft:#e8f1ec;
+    --mono:"Cascadia Mono","JetBrains Mono",Consolas,"Courier New",monospace;
+    --shadow:0 1px 2px rgba(63,48,28,.04),0 14px 34px -26px rgba(63,48,28,.42);
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-       font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
-       font-size:15px;line-height:1.7;}
-  .page{max-width:980px;margin:0 auto;padding:0 20px 72px;}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);
+       font-family:"Segoe UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+       font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased}
+  ::selection{background:#f3d9c9;color:#3a1a0c}
+  a{color:var(--rust);text-decoration:none}
+  a:hover{text-decoration:underline}
 
-  .crumbs{font-size:13px;color:var(--faint);margin:22px 0 10px;}
-  .crumbs a{color:var(--navy);text-decoration:none;}
-  .crumbs a:hover{text-decoration:underline;}
+  /* ---------------- 面包屑 ---------------- */
+  .crumbs{max-width:1180px;margin:0 auto;padding:20px 28px 0;font-size:13px;color:var(--muted);letter-spacing:.01em}
+  .crumbs a{color:var(--rust);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s}
+  .crumbs a:hover{border-bottom-color:var(--rust)}
 
-  header.top{background:var(--paper);border:1px solid var(--line);border-radius:12px;
-             padding:28px 30px;margin:0 0 18px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
-  .kicker{font-family:"Cascadia Mono",Consolas,monospace;font-size:11.5px;letter-spacing:.08em;
-          text-transform:uppercase;color:var(--teal);background:var(--teal-pale);
-          border-radius:5px;padding:2px 8px;display:inline-block;}
-  h1{font-size:26px;margin:12px 0 8px;letter-spacing:-.01em;}
-  h1 .en{color:var(--faint);font-size:15px;font-weight:400;margin-left:8px;}
-  .sub{color:var(--faint);font-size:13.5px;margin:0;}
+  /* ---------------- 封面 ---------------- */
+  .cover{background:linear-gradient(180deg,#fffdf8 0%,#f8f4ea 100%);border-bottom:1px solid var(--line);position:relative}
+  .cover::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--rust),#c9772f 45%,#9a6b12)}
+  .cover-in{max-width:1180px;margin:0 auto;padding:62px 28px 44px}
+  .eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--rust);font-weight:600;margin:0 0 18px}
+  .eyebrow span{color:var(--muted);letter-spacing:.16em;font-weight:500}
+  h1{font-size:clamp(30px,4.3vw,46px);line-height:1.24;margin:0 0 14px;font-weight:750;letter-spacing:-.01em}
+  h1 em{font-style:normal;color:var(--rust)}
+  h1 .en{color:var(--muted);font-size:16px;font-weight:400;margin-left:10px;letter-spacing:0}
+  .sub{font-size:17px;color:#545b63;max-width:800px;margin:0;line-height:1.75}
 
-  .panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;
-         padding:24px 28px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
-  h2{font-size:17px;margin:0 0 10px;}
-  p{color:var(--ink-2);font-size:14.2px;margin:0 0 12px;}
-  p:last-child{margin-bottom:0;}
+  /* ---------------- 内容 ---------------- */
+  .wrap{max-width:980px;margin:0 auto;padding:34px 28px 72px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;
+         padding:26px 30px 28px;margin-bottom:18px;box-shadow:var(--shadow)}
+  h2{font-size:19px;margin:0 0 10px;font-weight:700;letter-spacing:.01em}
+  p{color:#4c525a;font-size:14.6px;margin:0 0 12px}
+  p:last-child{margin-bottom:0}
 
-  ul.plan{list-style:none;padding:0;margin:14px 0 0;}
-  ul.plan li{border-top:1px solid var(--line);padding:10px 0;font-size:14px;color:var(--ink-2);}
-  ul.plan li:first-child{border-top:none;}
-  ul.plan b{color:var(--ink);}
+  ul.plan{list-style:none;padding:0;margin:14px 0 0}
+  ul.plan li{border-top:1px solid var(--line);padding:10px 0;font-size:14.2px;color:#4c525a}
+  ul.plan li:first-child{border-top:none}
+  ul.plan b{color:#151a20}
 
-  .list{margin-top:14px;display:grid;gap:10px;}
-  a.item{display:block;background:var(--paper);border:1px solid var(--line);border-radius:10px;
+  .list{margin-top:14px;display:grid;gap:10px}
+  a.item{display:block;background:#fffdf8;border:1px solid var(--line);border-radius:12px;
          padding:16px 20px;text-decoration:none;color:inherit;
-         transition:border-color .15s,box-shadow .15s;}
-  a.item:hover{border-color:var(--navy);box-shadow:0 2px 8px rgba(31,78,121,.10);}
-  a.item:focus-visible{outline:2px solid var(--navy);outline-offset:2px;}
-  a.item h3{font-size:15.5px;margin:0 0 5px;color:var(--navy);}
-  a.item p{margin:0;font-size:13.3px;color:var(--ink-2);line-height:1.65;}
-  a.item .tag{font-family:"Cascadia Mono",Consolas,monospace;font-size:11px;
-              color:var(--faint);font-weight:400;margin-left:8px;}
-  .empty{margin-top:16px;background:var(--paper);border:1px dashed var(--line-2);
-         border-radius:12px;padding:18px 22px;color:var(--muted);font-size:13.5px;text-align:center;}
-  code{font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
-       background:#f4f6f8;border-radius:3px;padding:1px 5px;}
+         transition:border-color .15s,box-shadow .15s,transform .15s}
+  a.item:hover{border-color:var(--rust);box-shadow:0 3px 10px rgba(176,68,29,.10);transform:translateY(-1px)}
+  a.item:focus-visible{outline:2px solid var(--rust);outline-offset:2px}
+  a.item h3{font-size:15.5px;margin:0 0 5px;color:var(--rust-2);font-weight:680}
+  a.item p{margin:0;font-size:13.4px;color:#5b544a;line-height:1.65}
+  a.item .tag{font-family:var(--mono);font-size:11px;color:var(--faint);font-weight:400;margin-left:8px}
+  .empty{margin-top:16px;background:var(--card);border:1px dashed var(--line-2);
+         border-radius:14px;padding:18px 22px;color:var(--muted);font-size:13.5px;text-align:center}
+  code{font-family:var(--mono);font-size:.86em;background:#f2ece0;border:1px solid #eadfcb;
+       border-radius:4px;padding:1px 5px;color:var(--rust-2)}
 
-  footer{margin-top:26px;color:var(--faint);font-size:12.5px;text-align:center;}
+  footer{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);
+         color:var(--faint);font-size:12.5px;line-height:1.9}
+
+  @media (max-width:980px){
+    .crumbs{padding:14px 20px 0}
+    .cover-in{padding:44px 20px 34px}
+    .wrap{padding:26px 20px 60px}
+    .panel{padding:22px 20px 24px}
+  }
+  @media (max-width:560px){
+    body{font-size:15.5px}
+  }
 
   @media print{
-    @page{margin:16mm}
+    @page{size:A4;margin:15mm}
     body{background:#fff;font-size:11pt}
-    .page{max-width:none;padding:0}
-    .crumbs,.empty,footer{display:none}
+    .crumbs{display:none}
+    .cover{background:#fff;border-bottom:1px solid #ddd}
+    .cover::before{height:2px;background:#b0441d}
+    .cover-in{padding:0 0 10mm}
+    .wrap{max-width:none;padding:0}
+    .panel{border:0;box-shadow:none;padding:0 0 6mm;margin:0 0 8mm;background:#fff;break-inside:auto}
+    .empty,footer{display:none}
   }
 </style>
 </head>
 <body>
-<div class="page">
 
-  <div class="crumbs"><a href="../index.html">笔记库</a> › 入门指南</div>
+<div class="crumbs"><a href="../index.html">笔记库</a> › 入门指南</div>
 
-  <header class="top">
-    <span class="kicker">Getting Started</span>
+<header class="cover">
+  <div class="cover-in">
+    <p class="eyebrow">Getting Started</p>
     <h1>入门指南<span class="en">基础与工具</span></h1>
     <p class="sub">计算机使用与开发工具的基础材料</p>
-  </header>
+  </div>
+</header>
+
+<div class="wrap">
 
   <div class="panel">
     <h2>这个集合准备放什么</h2>

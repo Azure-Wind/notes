@@ -32,32 +32,33 @@
     border-radius:4px;padding:1px 5px;color:#22303d;
   }
   pre.code code{background:none;border:0;padding:0;font-size:1em;color:inherit}
-  .page{max-width:1180px;margin:0 auto;padding:26px 22px 60px}
+  .page{max-width:1180px;margin:0 auto;padding:26px 28px 60px}
 
   /* ============ 封面 ============ */
-  .hero{
+  .cover{
     position:relative;overflow:hidden;border-radius:18px;color:#f4f7fa;
     background:linear-gradient(140deg,#132435 0%,#1b3c5c 55%,#1f4e79 100%);
     padding:44px 46px 38px;box-shadow:0 18px 40px rgba(19,36,53,.16);
   }
-  .hero::after{
+  .cover::after{
     content:"";position:absolute;right:-120px;top:-150px;width:420px;height:420px;border-radius:50%;
     border:1px solid rgba(255,255,255,.12);
     box-shadow:0 0 0 32px rgba(255,255,255,.03),0 0 0 72px rgba(255,255,255,.02);
   }
+  .cover-in{position:relative;z-index:1}
   .eyebrow{
     font-size:11.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
     color:rgba(255,255,255,.7);margin:0 0 16px;
   }
-  .hero h1{
+  .cover h1{
     font-size:clamp(30px,4.2vw,46px);line-height:1.16;letter-spacing:-.02em;
     margin:0 0 8px;font-weight:800;max-width:760px;
   }
-  .hero .en{
+  .cover .en{
     display:block;font-size:15px;font-weight:400;letter-spacing:.02em;
     color:rgba(244,247,250,.62);margin-top:10px;
   }
-  .hero .lede{
+  .cover .sub{
     max-width:700px;margin:16px 0 0;color:rgba(244,247,250,.88);
     font-size:16px;line-height:1.75;
   }
@@ -83,6 +84,8 @@
   aside.toc{
     position:sticky;top:16px;background:var(--paper);border:1px solid var(--line);
     border-radius:var(--radius);padding:18px 16px;font-size:13px;
+    max-height:calc(100vh - 32px);overflow-y:auto;overscroll-behavior:contain;
+    scrollbar-width:thin;scrollbar-color:#c9d3dd transparent;
   }
   .toc-title{
     margin:0 0 10px;font-size:11px;font-weight:800;letter-spacing:.16em;
@@ -305,11 +308,12 @@
 
   /* ============ 响应式 ============ */
   @media (max-width:980px){
-    .page{padding:14px 13px 40px}
-    .hero{padding:30px 24px 26px;border-radius:14px}
+    .page{padding:14px 20px 44px}
+    .cover{padding:30px 24px 26px;border-radius:14px}
+    .crumbs{padding:12px 20px 0}
     .meta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
     .layout{grid-template-columns:1fr;gap:16px}
-    aside.toc{position:static}
+    aside.toc{position:static;max-height:none;overflow:visible}
     aside.toc ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 8px}
     .chapter{padding:22px 20px 26px}
     .flow,.flow.four{grid-template-columns:1fr}
@@ -321,7 +325,7 @@
   }
 
   /* ============ 面包屑 ============ */
-  .crumbs{font-size:13px;color:var(--faint);margin:2px 0 12px;letter-spacing:.01em}
+  .crumbs{max-width:1180px;margin:0 auto;padding:20px 28px 0;font-size:13px;color:var(--faint);letter-spacing:.01em}
   .crumbs a{color:var(--navy);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s}
   .crumbs a:hover{border-bottom-color:var(--navy)}
   @media print{.crumbs{display:none !important}}
@@ -347,14 +351,14 @@
     @page{size:A4;margin:15mm 14mm}
     body{background:#fff;font-size:10.2pt;line-height:1.62}
     .page{max-width:none;padding:0}
-    .hero{
+    .cover{
       background:#fff !important;color:#000;border:0;border-bottom:2.4pt solid #000;
       border-radius:0;box-shadow:none;padding:0 0 6mm;
     }
-    .hero::after{display:none}
-    .hero h1{font-size:21pt}
-    .hero .en{color:#444}
-    .hero .lede{color:#222}
+    .cover::after{display:none}
+    .cover h1{font-size:21pt}
+    .cover .en{color:#444}
+    .cover .sub{color:#222}
     .meta-grid{background:none;border:0;gap:0 8mm;grid-template-columns:repeat(2,1fr)}
     .meta-item{background:none;padding:0 0 3mm}
     .meta-item dt{color:#555}
@@ -365,6 +369,7 @@
     aside.toc{
       position:static;border:0;border-bottom:1px solid #bbb;border-radius:0;
       padding:0 0 5mm;margin:0 0 7mm;break-after:page;
+      max-height:none;overflow:visible;
     }
     aside.toc .toc-title{color:#333}
     aside.toc ol{display:block;columns:2;column-gap:8mm}
@@ -407,30 +412,33 @@
 </style>
 </head>
 <body>
-<div class="page">
 
 <div class="crumbs"><a href="../index.html">笔记库</a> › <a href="./index.html">讲座笔记</a> › 从对话到行动</div>
 
-<header class="hero">
-  <p class="eyebrow">北京大学 · 知存讲座　|　学生听课笔记 · 正式版</p>
-  <h1>从对话到行动
-    <span class="en">AI Agents: From Chat to Action　—　机制、训练与环境</span>
-  </h1>
-  <p class="lede">一份按主题重排、按证据分级的学生听课笔记：先把“模型如何生成一个 token”讲清楚，再沿后训练、推理模型、工具调用、环境合成、RL 与蒸馏、模型融合一路推到“Agent 如何可靠地改变世界”。</p>
-  <dl class="meta-grid">
-    <div class="meta-item"><dt>讲者</dt><dd>于乐教授　阿里巴巴通义千问基模团队<br>北京航空航天大学计算机博士</dd></div>
-    <div class="meta-item"><dt>时间 · 地点</dt><dd>2026 年 10 月 16 日（周五）18:40<br>北京大学 理教 107</dd></div>
-    <div class="meta-item"><dt>讲座主题</dt><dd>AI Agents: From Chat to Action<br>AI 智能体：从对话到行动</dd></div>
-    <div class="meta-item"><dt>讲者方向</dt><dd>Cowork Agent 后训练 · 模型蒸馏<br>能力融合（模型合并）</dd></div>
-    <div class="meta-item"><dt>版本</dt><dd>正式版 v1.0　2026-10-17 整理</dd></div>
-    <div class="meta-item"><dt>依据</dt><dd>现场手写笔记 3 页<br>讲座公开信息 · 公开论文与文档</dd></div>
-  </dl>
-  <div class="ver">
-    <span class="tag">单文件自包含</span>
-    <span class="tag">学生视角</span>
-    <span class="tag">证据分级标注</span>
-    <span class="tag">可打印 A4</span>
-    <span>样式、图表与代码全部内联</span>
+<div class="page">
+
+<header class="cover">
+  <div class="cover-in">
+    <p class="eyebrow">北京大学 · 知存讲座　|　学生听课笔记 · 正式版</p>
+    <h1>从对话到行动
+      <span class="en">AI Agents: From Chat to Action　—　机制、训练与环境</span>
+    </h1>
+    <p class="sub">一份按主题重排、按证据分级的学生听课笔记：先把“模型如何生成一个 token”讲清楚，再沿后训练、推理模型、工具调用、环境合成、RL 与蒸馏、模型融合一路推到“Agent 如何可靠地改变世界”。</p>
+    <dl class="meta-grid">
+      <div class="meta-item"><dt>讲者</dt><dd>于乐教授　阿里巴巴通义千问基模团队<br>北京航空航天大学计算机博士</dd></div>
+      <div class="meta-item"><dt>时间 · 地点</dt><dd>2026 年 10 月 16 日（周五）18:40<br>北京大学 理教 107</dd></div>
+      <div class="meta-item"><dt>讲座主题</dt><dd>AI Agents: From Chat to Action<br>AI 智能体：从对话到行动</dd></div>
+      <div class="meta-item"><dt>讲者方向</dt><dd>Cowork Agent 后训练 · 模型蒸馏<br>能力融合（模型合并）</dd></div>
+      <div class="meta-item"><dt>版本</dt><dd>正式版 v1.0　2026-10-17 整理</dd></div>
+      <div class="meta-item"><dt>依据</dt><dd>现场手写笔记 3 页<br>讲座公开信息 · 公开论文与文档</dd></div>
+    </dl>
+    <div class="ver">
+      <span class="tag">单文件自包含</span>
+      <span class="tag">学生视角</span>
+      <span class="tag">证据分级标注</span>
+      <span class="tag">可打印 A4</span>
+      <span>样式、图表与代码全部内联</span>
+    </div>
   </div>
 </header>
 

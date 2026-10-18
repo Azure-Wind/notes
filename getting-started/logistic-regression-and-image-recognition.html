@@ -47,12 +47,13 @@ math[display="block"]{font-size:1.14em;margin:0 auto}
 .cover{background:linear-gradient(180deg,#fffdf8 0%,#f8f4ea 100%);border-bottom:1px solid var(--line);position:relative}
 .cover::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--rust),#c9772f 45%,#9a6b12)}
 .cover-in{max-width:1180px;margin:0 auto;padding:62px 28px 44px}
-.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--rust);font-weight:600;margin-bottom:18px}
+.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--rust);font-weight:600;margin:0 0 18px}
 .eyebrow span{color:var(--muted);letter-spacing:.16em;font-weight:500}
 h1{font-size:clamp(30px,4.3vw,46px);line-height:1.24;margin:0 0 14px;font-weight:750;letter-spacing:-.01em}
 h1 em{font-style:normal;color:var(--rust)}
-.sub{font-size:17px;color:#545b63;max-width:800px;margin:0 0 22px;line-height:1.75}
-.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px}
+h1 .en{color:var(--muted);font-size:16px;font-weight:400;margin-left:10px;letter-spacing:0}
+.sub{font-size:17px;color:#545b63;max-width:800px;margin:0;line-height:1.75}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 30px}
 .pill{font-size:12.5px;color:#5b554c;background:#fffdf8;border:1px solid var(--line);border-radius:999px;padding:4px 12px}
 .pill b{color:var(--ink);font-weight:600}
 .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
@@ -280,7 +281,7 @@ figcaption b{color:var(--rust);font-weight:700;margin-right:6px}
 
 <header class="cover">
   <div class="cover-in">
-    <div class="eyebrow">机器学习 · 第一课 <span>/</span> MNIST 二分类</div>
+    <p class="eyebrow">机器学习 <span>/</span> MNIST 二分类</p>
     <h1>0 与 1：<em>逻辑回归</em>图像识别全解</h1>
     <p class="sub">从最大似然一步步推出交叉熵与梯度，用 112 行 NumPy 实现训练，再在 2,115 张测试图上逐条验证结论——每一步都有公式、有代码、有实测数字。</p>
     <div class="pills">

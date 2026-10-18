@@ -7,69 +7,100 @@
 <title>笔记库</title>
 <style>
   :root{
-    --ink:#141a22;--ink-2:#3d4753;--muted:#69737f;--faint:#8d96a1;
-    --line:#dfe4ea;--line-2:#c8d0d9;--bg:#eef0f3;--paper:#fff;
-    --navy:#1f4e79;--navy-pale:#eef3f9;--teal:#176f68;--teal-pale:#eaf4f2;
+    --paper:#f4f1e9;--card:#fffefb;
+    --ink:#1f2329;--ink-2:#343a42;--muted:#6f6960;--faint:#8a8172;
+    --line:#e6dfd2;--line-2:#d5cbb8;
+    --rust:#b0441d;--rust-2:#8d3516;--rust-soft:#fbeee6;
+    --blue:#1f4e79;--blue-2:#2f6395;--blue-soft:#eef3f9;
+    --mono:"Cascadia Mono","JetBrains Mono",Consolas,"Courier New",monospace;
+    --shadow:0 1px 2px rgba(63,48,28,.04),0 14px 34px -26px rgba(63,48,28,.42);
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-       font-family:"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
-       font-size:15px;line-height:1.7;}
-  .page{max-width:980px;margin:0 auto;padding:0 20px 72px;}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);
+       font-family:"Segoe UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+       font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased}
+  ::selection{background:#f3d9c9;color:#3a1a0c}
+  a{color:var(--rust);text-decoration:none}
+  a:hover{text-decoration:underline}
 
-  header.top{background:var(--paper);border:1px solid var(--line);border-radius:12px;
-             padding:30px 32px;margin:26px 0 18px;box-shadow:0 1px 2px rgba(20,25,40,.05);}
-  h1{font-size:28px;margin:0 0 8px;letter-spacing:-.01em;}
-  .sub{color:var(--faint);font-size:13.5px;margin:0;}
-  .sub b{color:var(--ink-2);}
+  /* ---------------- 封面 ---------------- */
+  .cover{background:linear-gradient(180deg,#fffdf8 0%,#f8f4ea 100%);border-bottom:1px solid var(--line);position:relative}
+  .cover::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;
+                 background:linear-gradient(90deg,var(--blue),#4a6b86 40%,var(--rust) 100%)}
+  .cover-in{max-width:1180px;margin:0 auto;padding:62px 28px 44px}
+  .eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--rust);font-weight:600;margin:0 0 18px}
+  .eyebrow span{color:var(--muted);letter-spacing:.16em;font-weight:500}
+  h1{font-size:clamp(30px,4.3vw,46px);line-height:1.24;margin:0 0 14px;font-weight:750;letter-spacing:-.01em}
+  .sub{font-size:17px;color:#545b63;max-width:800px;margin:0;line-height:1.75}
+  .sub b{color:var(--ink);font-weight:600}
 
-  .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
-  @media (max-width:720px){.cols{grid-template-columns:1fr}}
+  /* ---------------- 内容 ---------------- */
+  .wrap{max-width:1180px;margin:0 auto;padding:34px 28px 72px}
+  .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+  @media (max-width:760px){.cols{grid-template-columns:1fr}}
 
-  a.card{display:block;background:var(--paper);border:1px solid var(--line);border-radius:12px;
-         padding:24px 26px;box-shadow:0 1px 2px rgba(20,25,40,.05);
-         text-decoration:none;color:inherit;transition:border-color .15s,box-shadow .15s,transform .15s;}
-  a.card:hover{border-color:var(--navy);box-shadow:0 3px 10px rgba(31,78,121,.10);transform:translateY(-1px);}
-  a.card:focus-visible{outline:2px solid var(--navy);outline-offset:2px;}
+  a.card{display:block;background:var(--card);border:1px solid var(--line);border-top:3px solid var(--accent);
+         border-radius:16px;padding:26px 28px 24px;box-shadow:var(--shadow);
+         text-decoration:none;color:inherit;
+         transition:border-color .15s,box-shadow .15s,transform .15s}
+  a.card.blue{--accent:var(--blue);--accent-soft:var(--blue-soft);--accent-2:var(--blue-2)}
+  a.card.rust{--accent:var(--rust);--accent-soft:var(--rust-soft);--accent-2:var(--rust-2)}
+  a.card:hover{border-color:var(--accent);border-top-color:var(--accent);
+               box-shadow:0 6px 20px -12px rgba(63,48,28,.45);transform:translateY(-2px)}
+  a.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
-  .kicker{font-family:"Cascadia Mono",Consolas,monospace;font-size:11.5px;letter-spacing:.08em;
-          text-transform:uppercase;color:var(--navy);background:var(--navy-pale);
-          border-radius:5px;padding:2px 8px;display:inline-block;}
-  .kicker.t{color:var(--teal);background:var(--teal-pale);}
-  h2{font-size:19px;margin:12px 0 6px;line-height:1.4;}
-  .en{color:var(--faint);font-size:13px;font-weight:400;margin-left:6px;}
-  p.desc{color:var(--ink-2);font-size:13.8px;margin:8px 0 0;}
-  .meta{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);
-        font-size:12.5px;color:var(--faint);display:flex;flex-wrap:wrap;gap:4px 14px;}
-  .meta b{color:var(--ink-2);}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+          color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:2px 8px;display:inline-block}
+  h2{font-size:21px;margin:13px 0 0;line-height:1.4;font-weight:720;color:var(--accent-2);letter-spacing:.01em}
+  .en{color:var(--faint);font-size:13.5px;font-weight:400;margin-left:8px;letter-spacing:0}
+  p.desc{color:#4c525a;font-size:14.2px;margin:9px 0 0;line-height:1.7}
+  .meta{margin-top:16px;padding-top:13px;border-top:1px solid var(--line);
+        font-size:12.5px;color:var(--faint);display:flex;flex-wrap:wrap;gap:4px 14px}
+  .meta b{color:var(--accent-2);font-weight:700}
 
-  .note{background:var(--paper);border:1px dashed var(--line-2);border-radius:12px;
-        padding:16px 20px;margin-top:16px;font-size:13px;color:var(--muted);}
-  .note code{font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;
-             background:#f4f6f8;border-radius:3px;padding:1px 5px;}
+  .note{margin-top:18px;background:none;border:1px dashed var(--line-2);border-radius:14px;
+        padding:15px 20px;font-size:13px;color:var(--muted);line-height:1.8}
+  .note code{font-family:var(--mono);font-size:12px;background:#f2ece0;border:1px solid #eadfcb;
+             border-radius:4px;padding:1px 5px;color:var(--rust-2)}
 
-  footer{margin-top:26px;color:var(--faint);font-size:12.5px;line-height:1.8;text-align:center;}
+  footer{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);
+         color:var(--faint);font-size:12.5px;line-height:1.9}
+  footer code{font-family:var(--mono);font-size:12px;color:var(--rust-2)}
+
+  @media (max-width:980px){
+    .cover-in{padding:44px 20px 34px}
+    .wrap{padding:26px 20px 60px}
+    a.card{padding:22px 20px 20px}
+  }
 
   @media print{
-    @page{margin:16mm}
+    @page{size:A4;margin:15mm}
     body{background:#fff;font-size:11pt}
-    .page{max-width:none;padding:0}
+    .cover{background:#fff;border-bottom:1px solid #ddd}
+    .cover::before{height:2px;background:#b0441d}
+    .cover-in{padding:0 0 10mm}
+    .wrap{max-width:none;padding:0}
     a.card{box-shadow:none;break-inside:avoid}
     .note,footer{display:none}
   }
 </style>
 </head>
 <body>
-<div class="page">
 
-  <header class="top">
+<header class="cover">
+  <div class="cover-in">
+    <p class="eyebrow">Notes <span>/</span> 笔记库</p>
     <h1>笔记库</h1>
-    <p class="sub">个人学习笔记 · 按主题分成若干集合，每个集合是一个独立的小站</p>
-  </header>
+    <p class="sub">个人学习笔记，按主题分成若干集合。<b>每个集合一套主题配色</b>——讲座用海军蓝，入门指南用砖红；笔记之间、讲座之间不分先后。</p>
+  </div>
+</header>
+
+<div class="wrap">
 
   <div class="cols">
 
-    <a class="card" href="lectures/index.html">
+    <a class="card blue" href="lectures/index.html">
       <span class="kicker">Lectures</span>
       <h2>讲座笔记<span class="en">听课与讲座整理</span></h2>
       <p class="desc">按场次整理的听课笔记，含正式版笔记、结构图与可运行附件。带「总索引」页，便于按日期查找。</p>
@@ -79,10 +110,10 @@
       </div>
     </a>
 
-    <a class="card" href="getting-started/index.html">
-      <span class="kicker t">Getting Started</span>
+    <a class="card rust" href="getting-started/index.html">
+      <span class="kicker">Getting Started</span>
       <h2>入门指南<span class="en">基础与工具</span></h2>
-      <p class="desc">计算机使用与开发工具的基础材料。已收录《Git 入门笔记》：三棵树模型、分支与合并、冲突解决、远程推送、GitHub Pages 部署。</p>
+      <p class="desc">计算机使用与开发工具的基础材料。已收录《Git 入门笔记》与《0 与 1：逻辑回归图像识别全解》。</p>
       <div class="meta">
         <span><b>2</b> 篇笔记</span>
         <span>最近更新 2026-10-18</span>
